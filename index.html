@@ -29,6 +29,37 @@
     --text:#f3e8ff; --text2:#e2d4f0; --muted:#b8a3cf; --faint:#9c86b8;
     --input:#1a1024; --track:#382250; --navbg:#241538; --hover:#7c5aa8;
   }
+  html[data-theme="ocean"] {
+    --bg1:#06182c; --bg2:#0a2340; --card:#0d2c4e; --card2:#082038; --border:#1c5480;
+    --text:#e0f2fe; --text2:#b6e3ff; --muted:#7cc4e8; --faint:#5b9fc8;
+    --input:#06182c; --track:#123a5f; --navbg:#0a2440; --hover:#38bdf8;
+    --glow:0 0 22px rgba(56,189,248,.18);
+  }
+  html[data-theme="lava"] {
+    --bg1:#190808; --bg2:#220c0c; --card:#31120f; --card2:#250d0b; --border:#5c2620;
+    --text:#ffe9e3; --text2:#f5c9bd; --muted:#d4917f; --faint:#a86c5c;
+    --input:#190808; --track:#3a1611; --navbg:#25100c; --hover:#ef6c4d;
+    --glow:0 0 24px rgba(249,115,22,.16);
+  }
+  html[data-theme="neon"] {
+    --bg1:#05070f; --bg2:#090d1d; --card:#0c1226; --card2:#080d1d; --border:#20305c;
+    --text:#dff3ff; --text2:#b9d9ff; --muted:#8fb8ff; --faint:#6f93c9;
+    --input:#05070f; --track:#14204a; --navbg:#0a1022; --hover:#c084fc;
+    --glow:0 0 26px rgba(147,197,253,.22);
+  }
+  html[data-theme="candy"] {
+    --bg1:#fde7f1; --bg2:#e3ecfd; --card:#ffffff; --card2:#fdf4fa; --border:#f2aede;
+    --text:#37315e; --text2:#4a4374; --muted:#7a6fa8; --faint:#9a8fc4;
+    --input:#ffffff; --track:#f3d4ee; --navbg:#ffffff; --hover:#c4b5fd;
+    --glow:0 0 22px rgba(236,72,153,.12);
+  }
+  html[data-theme="ocean"] .card, html[data-theme="lava"] .card, html[data-theme="neon"] .card, html[data-theme="candy"] .card { box-shadow: var(--glow); }
+  html[data-theme="neon"] .nb.on { box-shadow: 0 0 12px rgba(147,197,253,.5); }
+  html[data-theme="lava"] .nb.on { box-shadow: 0 0 12px rgba(249,115,22,.5); }
+  html[data-theme="ocean"] .nb.on { box-shadow: 0 0 12px rgba(56,189,248,.5); }
+  html[data-theme="neon"] body, html[data-theme="lava"] body {
+    background: radial-gradient(900px 420px at 50% -10%, rgba(147,197,253,.09), transparent), linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+  }
   * { box-sizing: border-box; margin: 0; }
   body { background: linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%); color: var(--text); max-width: 920px; margin: 0 auto; padding: 18px 14px 95px; transition: background .3s, color .3s; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
@@ -241,7 +272,7 @@
       <button class="btn red" id="wipebtn">🗑 Tout effacer</button>
     </div>
     <input type="file" id="importfile" accept=".json" class="hide">
-    <input type="file" id="actfile" accept=".fit,.tcx,.gpx" class="hide">
+    <input type="file" id="actfile" class="hide">
   </div>
 </div>
 
@@ -376,6 +407,10 @@ const THEMES = [
   { id: "light", label: "☀️ Clair", bg: "linear-gradient(135deg,#e8eef7,#ffffff)" },
   { id: "forest", label: "🌲 Forêt", bg: "linear-gradient(135deg,#0a1410,#14532d)" },
   { id: "sunset", label: "🌅 Coucher", bg: "linear-gradient(135deg,#1a1024,#7c3aed)" },
+  { id: "ocean", label: "🌊 Océan", bg: "linear-gradient(135deg,#06182c,#38bdf8)" },
+  { id: "lava", label: "🌋 Lave", bg: "linear-gradient(135deg,#190808,#f97316)" },
+  { id: "neon", label: "💜 Néon", bg: "linear-gradient(135deg,#05070f,#7c3aed,#38bdf8)" },
+  { id: "candy", label: "🍬 Bonbon", bg: "linear-gradient(135deg,#fde7f1,#dbeafe)" },
 ];
 let theme = "dark";
 try { theme = localStorage.getItem("planSemiTheme") || "dark"; } catch (e) {}
@@ -725,61 +760,81 @@ function fmtDur(sec) {
 }
 function parseFIT(buf) {
   const dv = new DataView(buf), u8 = new Uint8Array(buf);
-  if (buf.byteLength < 16 || u8[0] < 12) throw "En-tête FIT invalide";
+  if (buf.byteLength < 64) throw "fichier trop petit";
+  const magic = String.fromCharCode(u8[8], u8[9], u8[10], u8[11]);
+  if (magic !== ".FIT") throw "ce n'est pas un fichier FIT valide (en-tête : " + magic + ")";
   const end = buf.byteLength - 2;
   let p = u8[0];
   const defs = {}; let lastTs = null;
-  const recs = [];
+  const recs = []; let sess = null;
   function rd(off, size, type, le) {
-    switch (type) {
-      case 0: return dv.getInt8(off);
-      case 1: case 9: case 12: case 13: return size > 1 ? dv.getUint16(off, le) : u8[off];
-      case 2: return dv.getInt16(off, le);
-      case 3: case 10: return dv.getUint16(off, le);
-      case 4: return dv.getInt32(off, le);
-      case 5: case 11: return dv.getUint32(off, le);
-      case 7: return dv.getFloat32(off, le);
-      case 8: return dv.getFloat64(off, le);
-      default: return null;
-    }
+    const t = type & 0x1F; // masque le drapeau little-endian (0x80) du type de base
+    try {
+      switch (t) {
+        case 0: case 2: case 10: return u8[off];            // enum / uint8 / uint8z
+        case 1: return dv.getInt8(off);
+        case 3: return dv.getInt16(off, le);
+        case 4: case 11: return dv.getUint16(off, le);      // uint16 / uint16z
+        case 5: return dv.getInt32(off, le);
+        case 6: case 12: return dv.getUint32(off, le);      // uint32 / uint32z (distance !)
+        case 8: return dv.getFloat32(off, le);
+        case 9: return dv.getFloat64(off, le);
+        default: return null;                                 // chaînes etc.
+      }
+    } catch (e) { return null; }
   }
   while (p < end) {
     const h = u8[p];
-    if (h & 0x80) { // message de définition
-      p++;
-      const le = u8[p + 1] === 0; p += 2;
-      const gmn = le ? dv.getUint16(p, true) : dv.getUint16(p, false); p += 2;
-      const n = u8[p]; p++;
-      const fs = [];
-      for (let i = 0; i < n; i++) { fs.push({ num: u8[p], size: u8[p + 1], type: u8[p + 2] }); p += 3; }
-      if (h & 0x20) { const nd = u8[p]; p++; for (let i = 0; i < nd; i++) p += 3; }
-      defs[h & 0x0F] = { gmn, fs, le };
-    } else {
+    if ((h & 0x80) === 0 && (h & 0x40)) { // message de DÉFINITION (0x40-0x7F)
+      const l = h & 0x0F;
+      const le = u8[p + 2] === 0; // octet d'architecture : 0 = little-endian
+      const gmn = le ? dv.getUint16(p + 3, true) : dv.getUint16(p + 3, false);
+      const n = u8[p + 5];
+      p += 6;
+      const fs = []; let dsz = 0, tssz = 0;
+      for (let i = 0; i < n; i++) {
+        const num = u8[p], size = u8[p + 1], type = u8[p + 2]; p += 3;
+        fs.push({ num, size, type }); dsz += size; if (num === 253) tssz = size;
+      }
+      if (h & 0x20) { const nd = u8[p]; p += 1 + nd * 3; } // champs développeur
+      defs[l] = { gmn, fs, le, dsz, tssz };
+    } else if (h & 0x80) { // DONNÉE à horodatage compressé (0x80-0xFF)
+      const l = (h >> 5) & 3;
+      const def = defs[l];
+      if (!def) throw "structure inattendue (message compressé " + l + " à l'octet " + p + ")";
+      let p2 = p + 1; const vals = {};
+      for (const f of def.fs) { if (f.num === 253) continue; if (p2 + f.size <= end) vals[f.num] = rd(p2, f.size, f.type, def.le); p2 += f.size; }
+      if (lastTs !== null) vals[253] = (lastTs & ~0x1F) + (h & 0x1F);
+      if (def.gmn === 20) { if (vals[253] != null) lastTs = vals[253]; recs.push(vals); }
+      if (def.gmn === 18) sess = vals;
+      p = p2;
+    } else { // DONNÉE normale (0x00-0x3F)
       const l = h & 0x0F;
       const def = defs[l];
-      if (!def) throw "Structure FIT inattendue";
-      let p2 = p + 1;
-      const vals = {};
-      for (const f of def.fs) { vals[f.num] = rd(p2, f.size, f.type, def.le); p2 += f.size; }
-      if (h & 0x40) { // timestamp compressé
-        const off = (h >> 4) & 0x0F;
-        if (lastTs !== null) vals[253] = (lastTs & ~0x1F) + off;
-      }
+      if (!def) throw "structure inattendue (message " + l + " à l'octet " + p + ")";
+      let p2 = p + 1; const vals = {};
+      for (const f of def.fs) { if (p2 + f.size <= end) vals[f.num] = rd(p2, f.size, f.type, def.le); p2 += f.size; }
       if (def.gmn === 20) { if (vals[253] != null) lastTs = vals[253]; recs.push(vals); }
+      if (def.gmn === 18) sess = vals;
       p = p2;
     }
   }
+  // Extraction depuis les points de course (record = message 20)
   let dist = 0, t0 = null, t1 = null, hrS = 0, hrC = 0;
   for (const r of recs) {
-    if (r[5] != null) dist = Math.max(dist, r[5]);
-    if (r[105] != null) dist = Math.max(dist, r[105]); // distance étendue
-    if (r[253] != null) { if (t0 === null) t0 = r[253]; t1 = r[253]; }
-    if (r[6] != null && r[6] < 255) { hrS += r[6]; hrC++; }
+    if (typeof r[5] === "number") dist = Math.max(dist, r[5]);      // distance (×100 m)
+    if (typeof r[105] === "number") dist = Math.max(dist, r[105]);   // distance (champ dev)
+    if (typeof r[253] === "number") { if (t0 === null) t0 = r[253]; t1 = r[253]; }
+    if (typeof r[3] === "number" && r[3] > 0 && r[3] < 255) { hrS += r[3]; hrC++; } // FC = champ 3
   }
-  if (!recs.length) throw "Aucune donnée de course dans ce fichier";
-  const km = dist / 100000; // champ distance : ×100 en mètres
-  const dur = (t0 !== null && t1 !== null && t1 > t0) ? t1 - t0 : 0;
-  return { km, time: fmtDur(dur), avgHr: hrC ? Math.round(hrS / hrC) : null };
+  let dur = (t0 !== null && t1 !== null && t1 > t0) ? t1 - t0 : 0;
+  // Secours : message "session" (résumé de Coros — champs 10/14 pour le temps, 16 pour la FC)
+  if (sess) {
+    if (!dur) for (const k of [10, 14, 4]) if (typeof sess[k] === "number" && sess[k] > 0) { dur = sess[k] / 1000; break; }
+    if (hrC === 0 && typeof sess[16] === "number" && sess[16] > 0) { hrS = sess[16] & 0xFF; hrC = 1; }
+  }
+  if (!dist && !dur) throw "aucune donnée de course trouvée (" + recs.length + " points lus)";
+  return { km: dist / 100000, time: fmtDur(dur), avgHr: hrC ? Math.round(hrS / hrC) : null, pts: recs.length };
 }
 function parseXML(txt, isGpx) {
   let dist = 0, t0 = null, t1 = null, hrS = 0, hrC = 0, prev = null;
@@ -840,14 +895,15 @@ document.getElementById("actfile").addEventListener("change", function () {
     state.status[impTarget] = "done"; save();
     alert("Activité importée ✔ " + (res.km ? Math.round(res.km * 10) / 10 + " km" : "") + (res.time ? " · " + res.time : "") + (res.avgHr ? " · FC moy " + res.avgHr : "") + "\nPense à cliquer sur 💾 Enregistrer la séance.");
   };
-  const fail = err => alert("Import impossible : " + err);
-  if (name.endsWith(".fit")) {
-    f.arrayBuffer().then(buf => { try { done(parseFIT(buf)); } catch (e) { fail(e); } });
-  } else if (name.endsWith(".tcx") || name.endsWith(".gpx")) {
+  const fail = err => alert("Import impossible : " + err + "\n\nFais une capture de ce message et envoie-la-moi pour que je corrige.");
+  const isXml = name.endsWith(".tcx") || name.endsWith(".gpx") || name.endsWith(".xml");
+  if (isXml) {
     const r = new FileReader();
     r.onload = () => { try { done(parseXML(r.result, name.endsWith(".gpx"))); } catch (e) { fail(e); } };
     r.readAsText(f);
-  } else fail("format non géré (utilise .fit, .tcx ou .gpx)");
+  } else {
+    f.arrayBuffer().then(buf => { try { done(parseFIT(buf)); } catch (e) { fail(e); } }).catch(() => fail("lecture du fichier impossible"));
+  }
 });
 
 fillSettingsForm();
