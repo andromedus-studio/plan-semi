@@ -244,13 +244,98 @@
 </div>
 
 <!-- ================= ALLURES ================= -->
+<div class="view" id="v-coach">
+  <div class="vhead"><h1>🧭 Crée ta préparation</h1></div>
+  <div class="card">
+    <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Réponds au questionnaire : l'assistant calcule tes allures à partir de ton chrono (formule de Riegel) et construit un plan complet, adapté à <b>ton</b> emploi du temps, jour par jour. Tu pourras ensuite retoucher chaque séance dans la vue « Plan ».</p>
+    <p style="font-size:.8rem;color:var(--faint);line-height:1.5">⚠️ Générer un plan remplace le plan actuel et efface coches, carnets et courbes. Le plan d'exemple reste récupérable en bas de page.</p>
+    <button class="btn gray" id="skiplink" style="margin-top:8px">👀 Découvrir d'abord avec le plan d'exemple (Semi 1h50)</button>
+  </div>
+  <div class="card">
+    <h3 class="sec">1️⃣ Ta course</h3>
+    <div class="row2">
+      <div>
+        <span class="loglabel">Distance</span>
+        <div style="display:flex;gap:14px;font-size:.88rem;flex-wrap:wrap;margin-top:4px">
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="10k">10 km</label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="semi" checked>Semi</label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="mara">Marathon</label>
+        </div>
+      </div>
+      <div><span class="loglabel">Date de la course</span><input type="date" id="co_date"></div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div><span class="loglabel">Objectif temps (optionnel)</span><input type="time" step="1" id="co_goal"></div>
+      <div style="display:flex;align-items:flex-end"><label style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--text2)"><input type="checkbox" id="co_finish"> Pas d'objectif — juste finir</label></div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div>
+        <span class="loglabel">Durée de la préparation</span>
+        <select id="co_weeks" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px">
+          <option value="auto">Automatique — jusqu'à la course (max 16 sem.)</option>
+          <option value="6">6 semaines (départ rapide)</option>
+          <option value="8">8 semaines</option>
+          <option value="10">10 semaines</option>
+          <option value="12">12 semaines</option>
+          <option value="14">14 semaines</option>
+          <option value="16">16 semaines (prépa complète)</option>
+        </select>
+      </div>
+      <div><span class="loglabel">&nbsp;</span><span style="font-size:.78rem;color:var(--faint);display:block;line-height:1.4">Si la course est plus proche que ta sélection, le plan s'adapte au temps réellement disponible.</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 class="sec">2️⃣ Ton niveau</h3>
+    <div class="row2">
+      <div>
+        <span class="loglabel">Chrono de référence sur</span>
+        <div style="display:flex;gap:10px;font-size:.88rem;flex-wrap:wrap;margin-top:4px">
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="10k" checked>10 km</label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="semi">Semi</label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="mara">Marathon</label>
+        </div>
+      </div>
+      <div><span class="loglabel">Ton chrono (ex : 0:50:30)</span><input type="time" step="1" id="co_ref"></div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div><span class="loglabel">FC max (optionnel)</span><input type="number" id="co_hrmax" placeholder="ex 190"></div>
+      <div><span class="loglabel">FC au seuil (optionnel)</span><input type="number" id="co_hrseuil" placeholder="ex 168"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:.85rem;color:var(--text2)">
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_first"> C'est ma première prépa structurée → progression plus douce</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_nofrac"> Je déteste le fractionné → remplacé par du tempo</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_injury"> Je reviens de blessure → récupération plus fréquente</label>
+    </div>
+  </div>
+  <div class="card">
+    <h3 class="sec">3️⃣ Tes jours d'entraînement (+ temps dispo par jour)</h3>
+    <p style="font-size:.8rem;color:var(--faint);margin-bottom:10px;line-height:1.5">Coche tes jours disponibles et indique le temps max dont tu disposes chacun (minutes). La sortie longue ira sur ton jour le plus généreux, la qualité sur le second.</p>
+    <div id="co_days" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="0">Lundi<input type="number" min="20" class="co_min" id="co_min_0" placeholder="60" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="1" checked>Mardi<input type="number" min="20" class="co_min" id="co_min_1" placeholder="60" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="2">Mercredi<input type="number" min="20" class="co_min" id="co_min_2" placeholder="60" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="3" checked>Jeudi<input type="number" min="20" class="co_min" id="co_min_3" placeholder="60" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="4">Vendredi<input type="number" min="20" class="co_min" id="co_min_4" placeholder="45" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="5">Samedi<input type="number" min="20" class="co_min" id="co_min_5" placeholder="90" style="width:62px;margin-left:auto"></label>
+      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="6" checked>Dimanche<input type="number" min="20" class="co_min" id="co_min_6" placeholder="120" style="width:62px;margin-left:auto"></label>
+    </div>
+    <p style="font-size:.78rem;color:var(--faint);margin-top:8px">💡 3 à 5 jours, c'est l'idéal pour progresser sans se blesser.</p>
+    <button class="btn green" id="genbtn" style="margin-top:14px">🚀 Générer mon plan</button>
+  </div>
+  <div class="card" id="coachresult" style="display:none"></div>
+  <div class="card" id="coachback" style="display:none">
+    <p style="font-size:.82rem;color:var(--text2);margin-bottom:10px">Un plan personnalisé est actif sur cet appareil.</p>
+    <button class="btn gray" id="planreset">↺ Revenir au plan d'exemple (Semi 1h50 — 21 février 2027)</button>
+  </div>
+</div>
+
 <div class="view" id="v-paces">
   <div class="vhead"><h1>🎯 Allures & conseils</h1></div>
   <div class="card">
     <h3 class="sec">Tes allures de référence (zones Coros)</h3>
     <div id="pacestable"></div>
   </div>
-  <div class="card"><h3 class="sec">💡 Règles d'or</h3>
+  <div class="card" id="pacesrules"><h3 class="sec">💡 Règles d'or</h3>
     <ul class="rules">
       <li><b>80/20</b> : la majorité des km en EF, FC &lt; 149 — pas plus vite que 6'15 en footing !</li>
       <li><b>Douleur anormale</b> → vélo/natation/repos. Rater une séance n'est pas grave ; enchaîner blessé, si.</li>
@@ -321,6 +406,7 @@
   <button class="nb" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-6M12 20V8M17 20v-10"/></svg>Stats</button>
   <button class="nb" data-go="paces"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Allures</button>
   <button class="nb" data-go="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Données</button>
+  <button class="nb" data-go="coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Prépa</button>
   <button class="nb" data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>Réglages</button>
 </nav>
 
@@ -437,21 +523,42 @@ function applyTheme(t) {
   applyTheme(theme);
 })();
 
+// Plan actif : plan personnalisé généré par l'assistant, sinon plan d'origine
+function PLAN() { return (state.plan && state.plan.weeks && state.plan.weeks.length) ? state.plan.weeks : BASE; }
+
 let current = 0;
-(function () {
-  const diff = Math.floor((Date.now() - START.getTime()) / (7 * 24 * 3600 * 1000));
-  if (diff >= 0 && diff < BASE.length) current = diff;
-})();
+function calcCurrent() {
+  if (state.plan && state.plan.weeks && state.plan.weeks.length) {
+    const t = new Date(); t.setHours(12, 0, 0, 0);
+    current = 0;
+    state.plan.weeks.forEach((w, i) => {
+      const m = new Date(w.monday + "T12:00:00"); if (isNaN(m)) return;
+      const m2 = new Date(m); m2.setDate(m.getDate() + 7);
+      if (t >= m && t < m2) current = i;
+    });
+  } else {
+    const diff = Math.floor((Date.now() - START.getTime()) / (7 * 24 * 3600 * 1000));
+    current = (diff >= 0 && diff < BASE.length) ? diff : 0;
+  }
+}
+calcCurrent();
 
 // ---- Réglages objectif & recalcul des allures ----
 const BASE_SEMI = 306;   // 5'06/km — référence du plan (objectif 1h50)
 const BASE_GOAL = 6600;  // 1h50
 function fmtP(s) { s = Math.max(60, Math.round(s)); return Math.floor(s / 60) + "'" + String(s % 60).padStart(2, "0"); }
 function fmtT(s) { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return h + "h" + String(m).padStart(2, "0") + "'" + String(x).padStart(2, "0"); }
-function goalDelta() { const g = (state.settings && state.settings.goal) || BASE_GOAL; return Math.round(BASE_SEMI * (g - BASE_GOAL) / BASE_GOAL); }
+function goalDelta() {
+  const p = state.plan;
+  const g = (state.settings && state.settings.goal) || (p ? p.goalSec : BASE_GOAL);
+  const base = p ? p.goalSec : BASE_GOAL;
+  const ref = p ? p.refPace : BASE_SEMI;
+  return Math.round(ref * (g - base) / base);
+}
 function adjPace(t) { const d = goalDelta(); if (!d) return String(t); return String(t).replace(/(\d{1,2})'(\d{2})/g, (m, a, b) => fmtP(Math.max(150, +a * 60 + (+b) + d))); }
 function hrF(v) { const hs = (state.settings && state.settings.hrseuil) || 165; return Math.round(v * hs / 165); }
 function getRace() {
+  if (state.plan && state.plan.raceDate) { const d = new Date(state.plan.raceDate + "T12:00:00"); if (!isNaN(d)) return d; }
   if (state.settings && state.settings.date) { const d = new Date(state.settings.date + "T12:00:00"); if (!isNaN(d)) return d; }
   return new Date(2027, 1, 21);
 }
@@ -465,7 +572,8 @@ function fillSettingsForm() {
   document.getElementById("set_sub").value = s.sub || "";
 }
 function applyPerso() {
-  const t = (state.settings && state.settings.title) || "🏃 Semi-Marathon 1h50";
+  const defT = state.plan ? "🏃 " + DISTN[state.plan.dist] + (state.plan.goalSec ? " " + fmtT(state.plan.goalSec) : "") : "🏃 Semi-Marathon 1h50";
+  const t = (state.settings && state.settings.title) || defT;
   const sub = (state.settings && state.settings.sub) || getRace().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   document.getElementById("heroTitle").textContent = t;
   document.getElementById("heroSub").textContent = sub.charAt(0).toUpperCase() + sub.slice(1);
@@ -486,6 +594,26 @@ document.getElementById("setsave").addEventListener("click", () => {
 });
 
 function renderPacesTable() {
+  const prules = document.getElementById("pacesrules");
+  if (prules) prules.style.display = state.plan ? "none" : "";
+  if (state.plan && state.plan.zones) {
+    const z = state.plan.zones, dn = DISTN[state.plan.dist];
+    const fc = v => z.hrse ? "&lt; " + Math.round(v * z.hrse / 165) : "—";
+    document.getElementById("pacestable").innerHTML = "<table class='paces'>" +
+      "<tr><th>Type</th><th>Allure</th><th>FC</th><th>Usage</th></tr>" +
+      "<tr><td>EF endurance</td><td class='p'>" + fmtP(z.ef1) + " – " + fmtP(z.ef2) + "/km</td><td>" + fc(143) + "</td><td>Footing / volume</td></tr>" +
+      "<tr><td>Tempo / seuil</td><td class='p'>" + fmtP(z.seuil - 6) + " – " + fmtP(z.seuil + 8) + "/km</td><td>" + fc(162) + "</td><td>Tempo</td></tr>" +
+      "<tr><td>Allure " + dn + " (cible)</td><td class='p'>" + fmtP(z.race) + "/km</td><td>" + fc(158) + "</td><td>Rythme du jour J</td></tr>" +
+      "<tr><td>Fractionné court</td><td class='p'>" + fmtP(z.frac) + "/km</td><td>" + fc(172) + "</td><td>400 m – 1000 m</td></tr>" +
+      "<tr><td>Sortie longue</td><td class='p'>" + fmtP(z.sl1) + " – " + fmtP(z.sl2) + "/km</td><td>" + fc(150) + "</td><td>Endurance</td></tr></table>";
+    const g = state.plan.goalSec;
+    document.getElementById("strategybox").innerHTML =
+      "<li><b>Allure cible</b> : " + fmtP(z.race) + "/km — objectif " + fmtT(g) + " sur " + dn + "</li>" +
+      "<li><b>Départ</b> : 5 à 8'' plus lent que l'allure cible les 2 premiers km</li>" +
+      (state.plan.dist === "mara" ? "<li>Ravitaillement : boire toutes les 20', gel dès 60' (testé à l'entraînement !)</li>" : "<li>Passage mi-course ≈ " + fmtT(g / 2) + " — régularité absolue</li>") +
+      "<li>Course : " + getRace().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + "</li>";
+    return;
+  }
   const d = goalDelta(), semi = BASE_SEMI + d, seuil = semi - 12;
   const t = document.getElementById("pacestable");
   t.innerHTML = "<table class='paces'>" +
@@ -510,11 +638,19 @@ function renderPacesTable() {
 
 function buildPrint() {
   const d = goalDelta(), semi = BASE_SEMI + d;
-  const goal = (state.settings && state.settings.goal) || BASE_GOAL;
+  const goal = (state.settings && state.settings.goal) || (state.plan ? state.plan.goalSec : BASE_GOAL);
   const r = getRace();
-  let html = "<div class='ph'><h1>🏃 Plan Semi-Marathon — Objectif " + fmtT(goal) + "</h1>" +
-    "<div class='psub'>Course : " + r.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) +
-    " · Allure cible : " + fmtP(semi) + "/km · EF : " + fmtP(semi + 54) + "-" + fmtP(semi + 99) + "/km · Seuil : " + fmtP(semi - 12) + "/km</div></div>";
+  let html;
+  if (state.plan && state.plan.zones) {
+    const z = state.plan.zones;
+    html = "<div class='ph'><h1>🏃 Plan " + DISTN[state.plan.dist] + " — Objectif " + fmtT(state.plan.goalSec) + "</h1>" +
+      "<div class='psub'>Course : " + r.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) +
+      " · Allure cible : " + fmtP(z.race) + "/km · EF : " + fmtP(z.ef1) + "-" + fmtP(z.ef2) + "/km · Seuil : " + fmtP(z.seuil) + "/km</div></div>";
+  } else {
+    html = "<div class='ph'><h1>🏃 Plan Semi-Marathon — Objectif " + fmtT(goal) + "</h1>" +
+      "<div class='psub'>Course : " + r.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) +
+      " · Allure cible : " + fmtP(semi) + "/km · EF : " + fmtP(semi + 54) + "-" + fmtP(semi + 99) + "/km · Seuil : " + fmtP(semi - 12) + "/km</div></div>";
+  }
   html += "<div class='pgrid'>";
   weeks().forEach((w, wi) => {
     html += "<div class='pwk'><h4>S" + (wi + 1) + " · <span class='pd'>" + w.dates + "</span> — " + adjPace(w.title.replace(/^Semaine \d+ — /, "")) + (w.light ? " ⬇" : "") + "</h4>";
@@ -529,7 +665,7 @@ function buildPrint() {
 document.getElementById("printbtn").addEventListener("click", () => { buildPrint(); window.print(); });
 
 function weeks() {
-  return BASE.map((w, i) => {
+  return PLAN().map((w, i) => {
     const extra = (state.added[i] || []).map(s => Object.assign({}, s, { added: true }));
     const kept = w.sessions.map((s, si) => ({ s, si })).filter(o => !(state.deleted[i] || []).includes(o.si)).map(o => o.s);
     return Object.assign({}, w, { idx: i, sessions: kept.concat(extra) });
@@ -668,7 +804,7 @@ function wireWeek(w) {
   document.querySelectorAll(".iconbtn[data-ek]").forEach(el => el.addEventListener("click", () => openEditor(el.dataset.ek)));
   document.querySelectorAll(".iconbtn[data-rk]").forEach(el => el.addEventListener("click", () => {
     const p = el.dataset.rk.split("_"); const wi = +p[0], si = +p[1];
-    const baseLen = BASE[wi].sessions.length - (state.deleted[wi] || []).length;
+    const baseLen = PLAN()[wi].sessions.length - (state.deleted[wi] || []).length;
     const idx = si - baseLen;
     if (idx >= 0 && confirm("Supprimer cette séance ?")) { state.added[wi] = (state.added[wi] || []).filter((_, i) => i !== idx); save(); renderAll(); }
   }));
@@ -986,6 +1122,188 @@ document.getElementById("actfile").addEventListener("change", function () {
     f.arrayBuffer().then(buf => { try { done(parseFIT(buf)); } catch (e) { fail(e); } }).catch(() => fail("lecture du fichier impossible"));
   }
 });
+
+// ---- Assistant de préparation (générateur de plan personnalisé) ----
+const DISTK = { "10k": 10, semi: 21.0975, mara: 42.195 };
+const DISTN = { "10k": "10 km", semi: "Semi-marathon", mara: "Marathon" };
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+function tsec(v) { const p = String(v || "").split(":").map(Number); if (p.length < 2 || isNaN(p[0])) return 0; return p[0] * 3600 + p[1] * 60 + (p[2] || 0); }
+function durStr(min) { min = Math.round(min); if (min < 60) return min + " min"; return Math.floor(min / 60) + "h" + (min % 60 ? " " + min % 60 : ""); }
+
+function genPlan() {
+  const dist = document.querySelector("input[name=co_dist]:checked").value;
+  const raceS = document.getElementById("co_date").value;
+  const refD = document.querySelector("input[name=co_refdist]:checked").value;
+  const refT = tsec(document.getElementById("co_ref").value);
+  const justFinish = document.getElementById("co_finish").checked;
+  let goalS = justFinish ? 0 : tsec(document.getElementById("co_goal").value);
+  const weeksSel = document.getElementById("co_weeks").value;
+  const firstTimer = document.getElementById("co_first").checked;
+  const nofrac = document.getElementById("co_nofrac").checked;
+  const injured = document.getElementById("co_injury").checked;
+  const hrmax = +document.getElementById("co_hrmax").value || 0;
+  const hrse = +document.getElementById("co_hrseuil").value || 0;
+  // jours disponibles + budgets
+  const days = [];
+  document.querySelectorAll("input.co_day").forEach(cb => {
+    if (cb.checked) {
+      const i = +cb.value;
+      days.push({ i: i, min: Math.max(20, +document.getElementById("co_min_" + i).value || 60) });
+    }
+  });
+  if (days.length < 2) { alert("Coche au moins 2 jours d'entraînement."); return; }
+  if (days.length > 6) { alert("Maximum 6 jours — le repos fait partie de l'entraînement !"); return; }
+  if (!raceS) { alert("Indique la date de ta course."); return; }
+  if (!refT) { alert("Indique ton chrono de référence."); return; }
+  const race = new Date(raceS + "T12:00:00"); if (isNaN(race)) { alert("Date invalide."); return; }
+  const dK = DISTK[dist], dR = DISTK[refD];
+  const pace10 = (refT / dR) * Math.pow(10 / dR, 0.06); // allure sur 10 km (Riegel)
+  const predSec = pace10 * Math.pow(dK / 10, 0.06) * dK; // temps prédit sur la distance cible
+  let warned = false;
+  if (!goalS) goalS = Math.round(predSec);
+  else if (goalS < predSec * 0.94) { warned = true; goalS = Math.round(predSec); }
+  const racePace = goalS / dK;
+  const z = {
+    ef1: Math.round(pace10 * 1.28), ef2: Math.round(pace10 * 1.42),
+    seuil: Math.round(pace10 * 1.02),
+    frac: Math.round(pace10 * 0.88), k1: Math.round(pace10 * 0.95),
+    sl1: Math.round(pace10 * 1.30), sl2: Math.round(pace10 * 1.45),
+    race: Math.round(racePace), predSec: Math.round(predSec), hrmax: hrmax, hrse: hrse
+  };
+  const pS = v => "<span class='pace'>" + fmtP(v) + "/km</span>";
+  const pR = v => "<span class='pace'>" + fmtP(v) + "-" + fmtP(v + 12) + "/km</span>";
+  const pHR = v => hrse ? ", FC ≈ <span class='hr'>" + Math.round(v * hrse / 165) + "</span>" : "";
+  const raceMon = new Date(race); raceMon.setDate(raceMon.getDate() - ((race.getDay() + 6) % 7));
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  const avail = Math.round((raceMon - today) / 604800000);
+  if (avail < 6) { alert("Ta course est dans moins de 6 semaines — trop court pour construire un plan complet. Passe me voir pour une mini-prépa !"); return; }
+  let N = (weeksSel === "auto") ? Math.min(avail, 16) : Math.min(+weeksSel, avail);
+  const truncated = N < avail;
+  const c1 = Math.round(N / 3), c2 = Math.round(2 * N / 3);
+  // attribution des jours : SL = jour le plus généreux (week-end avantagé), qualité = second
+  const prio = days.slice().sort((a, b) => (b.min + (b.i >= 5 ? 30 : 0)) - (a.min + (a.i >= 5 ? 30 : 0)));
+  const slD = prio[0], qD = prio[1] || prio[0];
+  const efDs = days.filter(d => d !== slD && d !== qD);
+  const dName = d => { const j = JOURS[(d.i + 1) % 7]; return j.charAt(0).toUpperCase() + j.slice(1); };
+  const dSlot = d => "≤" + durStr(d.min);
+  const SLD = { "10k": [45, 70], semi: [60, 100], mara: [75, 145] }[dist];
+  const slEnd = SLD[1] * (firstTimer ? 0.85 : 1);
+  const kmOf = (min, pace) => Math.max(1, Math.round(min * 60 / pace));
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const w = i + 1, pr = N > 1 ? i / (N - 1) : 1;
+    const isCut = (w === c1 || w === c2 || (injured && w % 4 === 0)) && w < N - 1;
+    const isPre = w === N - 1, isRace = w === N;
+    const mon = new Date(raceMon); mon.setDate(mon.getDate() - (N - 1 - i) * 7);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const fD = d => d.getDate() + " " + MOIS[d.getMonth()];
+    let phase, color, title, goal = "", light = false, sessions = [];
+    const slFull = (SLD[0] + (slEnd - SLD[0]) * pr);
+    const slDur = isRace ? 0 : Math.round(Math.min(isCut ? slFull * 0.72 : isPre ? slEnd * 0.45 : slFull, slD.min));
+    const efMid = Math.round(40 + 20 * pr);
+    if (isRace) {
+      phase = "🏁 Semaine de course"; color = "#a78bfa";
+      title = "Semaine " + N + " — Jour J 🏆";
+      goal = "Footings légers puis " + DISTN[dist] + (justFinish ? " — termine en beauté !" : " en " + fmtT(goalS) + " !");
+      sessions.push(W(dName(qD), dSlot(qD), "ef", "EF 25'", "25 min", "3", ["25' très facile" + pHR(140)]));
+      if (efDs.length) sessions.push(W(dName(efDs[0]), dSlot(efDs[0]), "ef", "EF 20' + lignes droites", "25 min", "3", ["20' footing + 4 accélérations de 15''", "Rien de neuf le jour J : tout est déjà testé"]));
+      const jd = JOURS[race.getDay()];
+      sessions.push(W(jd.charAt(0).toUpperCase() + jd.slice(1), "Course", "race", DISTN[dist] + (justFinish ? "" : " — objectif " + fmtT(goalS)), fmtT(goalS), String(Math.round(dK * 10) / 10), ["Pars 5-8'' plus lent que " + pS(z.race) + " les 2 premiers km", "Régularité, hydratation, et savoure !"]));
+    } else if (isPre) {
+      phase = "Affûtage"; color = "#a78bfa"; light = true;
+      title = "Semaine " + (N - 1) + " — Fraîcheur avant le jour J";
+      goal = "Volume réduit : le corps emmagasine l'énergie";
+      sessions.push(W(dName(qD), dSlot(qD), nofrac ? "qual" : "frac", "Rappel " + (nofrac ? "tempo 15'" : "5×400 m"), "40 min", "5", nofrac
+        ? ["15' échauffement", "15' à " + pS(z.seuil + 6) + pHR(155), "10' retour au calme"]
+        : ["15' échauffement", "5×400 m à " + pS(z.frac) + ", récup 1'30 trot", "10' retour au calme"]));
+      efDs.forEach(d => { if (d.min >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF 25'", "25 min", "3", ["25' très facile" + pHR(140)])); });
+      sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur) + " dont 15' course", durStr(slDur), String(kmOf(slDur, z.sl1)), [durStr(slDur) + " avec 15' à " + pS(z.race) + " en finale" + pHR(158)]));
+    } else if (isCut) {
+      phase = "⬇ Allégée (récupération)"; color = "#a78bfa"; light = true;
+      title = "Semaine " + w + " — Allégée";
+      goal = "Semaine facile : le corps assimile le travail des semaines passées";
+      sessions.push(W(dName(qD), dSlot(qD), "qual", "Tempo court 15'", durStr(Math.min(40, qD.min)), "5", ["15' échauffement", "15' à " + pS(z.seuil + 8) + pHR(152), "10' retour au calme"]));
+      efDs.forEach(d => { const du = Math.min(efMid, d.min); if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing tranquille à " + pR(z.ef1)])); });
+      sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur), durStr(slDur), String(kmOf(slDur, z.sl1)), [durStr(slDur) + " à " + pR(z.sl1)]));
+    } else {
+      const isBase = w <= c1, isDev = !isBase && w <= c2;
+      phase = isBase ? "Bloc 1 · Base endurance" : isDev ? "Bloc 2 · Développement" : "Bloc 3 · Spécifique";
+      color = isBase ? "#38bdf8" : isDev ? "#f59e0b" : "#34d399";
+      title = "Semaine " + w + " — " + (isBase ? "volume en aisance" : isDev ? "fractionné progressif" : "allure " + DISTN[dist]);
+      goal = isBase ? "Construire le moteur d'endurance, tout en aisance" : isDev ? "Réveiller la VMA avec du fractionné" : "Courir à l'allure cible en conditions de course";
+      // séance qualité sur le 2e jour
+      const qDur = Math.min(qD.min, isBase ? 55 : 70);
+      if (isBase && !nofrac) {
+        const r4 = Math.min(8, 5 + w);
+        sessions.push(W(dName(qD), dSlot(qD), "frac", r4 + "×400 m", durStr(qDur), String(kmOf(qDur - 25, z.ef1) + 2), ["15' échauffement EF", r4 + "×400 m à " + pS(z.frac) + pHR(172) + ", récup 1'30 trot", "10' retour au calme"]));
+      } else if (isBase) {
+        sessions.push(W(dName(qD), dSlot(qD), "qual", "Tempo 2×8'", durStr(qDur), String(kmOf(qDur, z.seuil)), ["15' échauffement", "2×8' à " + pS(z.seuil + 10) + pHR(150) + ", récup 3'", "10' retour au calme"]));
+      } else if (isDev && !nofrac) {
+        const r1 = Math.min(6, 3 + (w - c1));
+        sessions.push(W(dName(qD), dSlot(qD), "frac", r1 + "×1000 m", durStr(qDur), String(kmOf(qDur - 25, z.ef1) + 4), ["15' échauffement EF", r1 + "×1000 m à " + pS(z.k1) + pHR(176) + ", récup 2' trot", "10' retour au calme"]));
+      } else if (isDev) {
+        sessions.push(W(dName(qD), dSlot(qD), "qual", "Tempo progressif 25'", durStr(qDur), String(kmOf(qDur, z.seuil)), ["15' échauffement", "25' de " + pS(z.seuil + 12) + " vers " + pS(z.seuil) + pHR(158), "10' retour au calme"]));
+      } else if (dist === "mara") {
+        sessions.push(W(dName(qD), dSlot(qD), "qual", "Tempo 2×20' allure marathon", durStr(qDur), String(kmOf(qDur, z.seuil)), ["15' échauffement", "2×20' à " + pS(z.race + 2) + pHR(158) + ", récup 3' trot", "10' retour au calme"]));
+      } else if (dist === "semi") {
+        sessions.push(W(dName(qD), dSlot(qD), "qual", "3×10' allure semi", durStr(qDur), String(kmOf(qDur, z.seuil)), ["15' échauffement", "3×10' à " + pS(z.race + 2) + pHR(158) + ", récup 3' trot", "10' retour au calme"]));
+      } else {
+        sessions.push(W(dName(qD), dSlot(qD), nofrac ? "qual" : "frac", nofrac ? "Tempo 3×8' allure 10 km" : "5×1000 m", durStr(qDur), String(kmOf(qDur, z.seuil)), nofrac
+          ? ["15' échauffement", "3×8' à " + pS(z.race + 4) + pHR(165) + ", récup 2'30", "10' retour au calme"]
+          : ["15' échauffement", "5×1000 m à " + pS(z.race - 4) + pHR(175) + ", récup 2'", "10' retour au calme"]));
+      }
+      // tempo sur un jour EF à partir du bloc 2 (si assez de temps)
+      const tempoD = efDs.find(d => d.min >= 50);
+      efDs.forEach(d => {
+        const du = Math.min(efMid, d.min);
+        if (d === tempoD && !isBase && du >= 50) sessions.push(W(dName(d), dSlot(d), "qual", "Tempo 20'", durStr(Math.min(du, 50)), String(kmOf(40, z.seuil)), ["10' échauffement", "20' à " + pS(z.seuil + 6) + pHR(162), "10' retour au calme"]));
+        else if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing à " + pR(z.ef1) + " — sensation : pouvoir parler en courant"]));
+      });
+      // sortie longue
+      let slDet = [durStr(slDur) + " à " + pR(z.sl1)];
+      if (!isBase && slDur >= 70) slDet = [durStr(slDur) + " dont " + (dist === "mara" ? "2×20'" : "2×15'") + " à " + pS(dist === "mara" ? z.race : z.race + 2) + pHR(158)];
+      sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur), durStr(slDur), String(kmOf(slDur, z.sl1)), slDet));
+    }
+    out.push({ phase, color, title, dates: fD(mon) + " – " + fD(sun), goal: goal, light: light, monday: mon.toISOString().slice(0, 10), sessions: sessions });
+  }
+  if (!confirm("Je vais remplacer ton plan actuel par un plan " + DISTN[dist] + " de " + N + " semaines (objectif " + fmtT(goalS) + (warned ? " — ajusté à ton niveau réel" : "") + ").\nTes coches, carnets et courbes actuels seront effacés.\n\nContinuer ?")) return;
+  state.plan = { weeks: out, raceDate: raceS, goalSec: goalS, refPace: Math.round(racePace), dist: dist, zones: z, createdAt: new Date().toISOString() };
+  state.settings = state.settings || {};
+  if (hrse) state.settings.hrseuil = hrse;
+  if (hrmax) state.settings.hrmax = hrmax;
+  delete state.settings.goal; delete state.settings.date; // les réglages se réfèrent désormais au plan généré
+  state.status = {}; state.log = {}; state.edits = {}; state.notes = {}; state.deleted = {}; state.added = {};
+  state.onboarded = true;
+  save(); calcCurrent(); renderAll();
+  const res = document.getElementById("coachresult");
+  res.style.display = "";
+  res.innerHTML = "<h3 class='sec'>✅ Ton plan est prêt !</h3>" +
+    "<p style='font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:8px'>" + N + " semaines pour " + DISTN[dist] + " le " + race.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + " · objectif <b>" + fmtT(goalS) + "</b>" + (warned ? " — ajusté à ton niveau réel (ton chrono laisse présager " + fmtT(predSec) + ")" : "") + (truncated ? " · la course est plus loin : le plan couvre les 16 dernières semaines, roule librement avant" : "") + "</p>" +
+    "<p style='font-size:.85rem;color:var(--text2);line-height:1.6'>Toutes tes allures sont calculées à partir de ton chrono : EF " + fmtP(z.ef1) + "-" + fmtP(z.ef2) + "/km · seuil " + fmtP(z.seuil) + "/km · allure " + DISTN[dist].toLowerCase() + " " + fmtP(z.race) + "/km. Va voir « Plan » et « Allures » — et retouche chaque séance avec ✏️ si besoin !</p>";
+  document.getElementById("coachback").style.display = "";
+  go("plan");
+}
+
+document.getElementById("co_finish").addEventListener("change", function () { document.getElementById("co_goal").disabled = this.checked; });
+document.getElementById("genbtn").addEventListener("click", genPlan);
+document.getElementById("skiplink").addEventListener("click", function () { state.onboarded = true; save(); go("home"); });
+document.getElementById("planreset").addEventListener("click", function () {
+  if (!confirm("Revenir au plan d'exemple (Semi 1h50 — 15 semaines) ? Tes coches, carnets et courbes seront effacés.")) return;
+  delete state.plan;
+  state.status = {}; state.log = {}; state.edits = {}; state.notes = {}; state.deleted = {}; state.added = {};
+  save(); calcCurrent(); renderAll(); go("plan");
+});
+(function () {
+  if (state.plan) {
+    document.getElementById("coachback").style.display = "";
+    document.getElementById("co_date").value = state.plan.raceDate;
+    const q = document.querySelector("input[name=co_dist][value='" + state.plan.dist + "']"); if (q) q.checked = true;
+  } else if (!state.onboarded && !Object.keys(state.status || {}).length) {
+    // premier arrivant sur la page vierge → on l'envoie directement vers l'assistant
+    go("coach");
+  }
+})();
 
 fillSettingsForm();
 renderAll();
