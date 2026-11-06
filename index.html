@@ -99,7 +99,7 @@
   table.paces .p { color: #fbbf24; font-weight: 700; }
   .rules li, .strategy li { margin: 0 0 6px 18px; font-size: .82rem; color: var(--text2); line-height: 1.5; }
   .chart { display: flex; align-items: flex-end; gap: 5px; height: 130px; margin-top: 8px; }
-  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; cursor: pointer; }
+  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; }
   .barwrap { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; border-radius: 6px 6px 0 0; background: var(--track); overflow: hidden; }
   .barfill { width: 100%; background: linear-gradient(180deg,#3b82f6,#1d4ed8); } .barfill.donepart { background: linear-gradient(180deg,#22c55e,#15803d); }
   .bar .n { font-size: .56rem; color: var(--faint); } .bar .k { font-size: .6rem; color: var(--text2); }
@@ -112,7 +112,7 @@
   .statrow b { color: #4ade80; }
   nav.bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navbg); border-top: 1px solid var(--border); backdrop-filter: blur(8px); display: flex; justify-content: center; gap: 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 50; }
   .nb { background: none; border: none; color: var(--faint); padding: 5px 0; flex: 1; max-width: 110px; border-radius: 10px; cursor: pointer; font-size: .6rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .nb .i { font-size: 1.1rem; }
+  .nb svg { width: 20px; height: 20px; }
   .nb.on { color: #60a5fa; background: var(--track); }
   .vhead h1 { font-size: 1.2rem; }
   footer { text-align: center; color: var(--faint); font-size: .72rem; margin-top: 20px; }
@@ -158,7 +158,7 @@
     .chart { height: 100px; }
     .logform input, .logform select, .logform textarea, .editor input, .editor textarea { font-size: 16px; }
     nav.bottom { padding: 5px 4px calc(5px + env(safe-area-inset-bottom)); }
-    .nb { font-size: .55rem; } .nb .i { font-size: 1.05rem; }
+    .nb { font-size: .55rem; } .nb svg { width: 18px; height: 18px; }
   }
 </style>
 </head>
@@ -167,8 +167,8 @@
 <!-- ================= ACCUEIL ================= -->
 <div class="view on" id="v-home">
   <div class="hero">
-    <h1>🏃 Semi-Marathon 1h50</h1>
-    <div class="sub">Dimanche 21 février 2027</div>
+    <h1 id="heroTitle">🏃 Semi-Marathon 1h50</h1>
+    <div class="sub" id="heroSub">Dimanche 21 février 2027</div>
     <div class="countbig" id="cdown">—</div>
     <div class="countsub">jours avant la course</div>
   </div>
@@ -241,6 +241,7 @@
       <button class="btn red" id="wipebtn">🗑 Tout effacer</button>
     </div>
     <input type="file" id="importfile" accept=".json" class="hide">
+    <input type="file" id="actfile" accept=".fit,.tcx,.gpx" class="hide">
   </div>
 </div>
 
@@ -250,6 +251,13 @@
   <div class="card">
     <h3 class="sec">🎨 Thème</h3>
     <div class="themes" id="themes"></div>
+  </div>
+  <div class="card setcard">
+    <h3 class="sec">🎨 Titres personnalisés</h3>
+    <div class="row2">
+      <div><span class="loglabel">Titre</span><input id="set_title" maxlength="60" placeholder="🏃 Semi-Marathon 1h50"></div>
+      <div><span class="loglabel">Sous-titre</span><input id="set_sub" maxlength="80" placeholder="Dimanche 21 février 2027"></div>
+    </div>
   </div>
   <div class="card setcard">
     <h3 class="sec">🎯 Objectif & course</h3>
@@ -272,12 +280,12 @@
 </div>
 
 <nav class="bottom">
-  <button class="nb on" data-go="home"><span class="i">🏠</span>Accueil</button>
-  <button class="nb" data-go="plan"><span class="i">📅</span>Plan</button>
-  <button class="nb" data-go="stats"><span class="i">📊</span>Stats</button>
-  <button class="nb" data-go="paces"><span class="i">🎯</span>Allures</button>
-  <button class="nb" data-go="data"><span class="i">💾</span>Données</button>
-  <button class="nb" data-go="settings"><span class="i">⚙️</span>Réglages</button>
+  <button class="nb on" data-go="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>Accueil</button>
+  <button class="nb" data-go="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>Plan</button>
+  <button class="nb" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-6M12 20V8M17 20v-10"/></svg>Stats</button>
+  <button class="nb" data-go="paces"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Allures</button>
+  <button class="nb" data-go="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Données</button>
+  <button class="nb" data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>Réglages</button>
 </nav>
 
 <div id="printsheet"></div>
@@ -413,6 +421,15 @@ function fillSettingsForm() {
   document.getElementById("set_date").value = s.date || "2027-02-21";
   document.getElementById("set_hrmax").value = s.hrmax || 187;
   document.getElementById("set_hrseuil").value = s.hrseuil || 165;
+  document.getElementById("set_title").value = s.title || "";
+  document.getElementById("set_sub").value = s.sub || "";
+}
+function applyPerso() {
+  const t = (state.settings && state.settings.title) || "🏃 Semi-Marathon 1h50";
+  const sub = (state.settings && state.settings.sub) || getRace().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  document.getElementById("heroTitle").textContent = t;
+  document.getElementById("heroSub").textContent = sub.charAt(0).toUpperCase() + sub.slice(1);
+  document.title = t.replace(/^[^\p{L}\p{N}]+/u, "").trim() || "Plan Semi";
 }
 function fmtClock(sec) { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60; return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0"); }
 document.getElementById("setsave").addEventListener("click", () => {
@@ -421,7 +438,9 @@ document.getElementById("setsave").addEventListener("click", () => {
     goal: (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0) || BASE_GOAL,
     date: document.getElementById("set_date").value,
     hrmax: +document.getElementById("set_hrmax").value || 187,
-    hrseuil: +document.getElementById("set_hrseuil").value || 165
+    hrseuil: +document.getElementById("set_hrseuil").value || 165,
+    title: document.getElementById("set_title").value.trim(),
+    sub: document.getElementById("set_sub").value.trim()
   };
   save(); renderAll(); alert("Réglages enregistrés ✔\nToutes les allures ont été recalculées.");
 });
@@ -496,6 +515,7 @@ function go(v) {
 document.querySelectorAll("[data-go]").forEach(el => el.addEventListener("click", () => go(el.dataset.go)));
 
 function renderAll() {
+  applyPerso();
   const ws = weeks();
   const total = ws.reduce((a, w) => a + w.sessions.length, 0);
   let done = 0, missed = 0, kmReal = 0, recent = [];
@@ -545,7 +565,6 @@ function renderAll() {
     bar.className = "bar" + (i === current ? " active" : "") + (w.light ? " light" : "");
     const realPct = plan ? Math.min(real / plan * 100, 100) : 0;
     bar.innerHTML = "<div class='barwrap'><div class='barfill donepart' style='height:" + realPct + "%'></div></div><div class='k'>" + Math.round(real) + "/" + Math.round(plan) + "</div><div class='n'>S" + (i + 1) + "</div>";
-    bar.addEventListener("click", () => { current = i; renderAll(); });
     chart.appendChild(bar);
   });
   renderWeek(); renderStats(ws, recent); renderPacesTable();
@@ -585,7 +604,7 @@ function renderWeek() {
     html += "<div><span class='loglabel'>Durée</span><input id='lg_tm_" + k + "' value='" + (log.time || "") + "' placeholder=\"ex 1h12\"></div>";
     html += "<div><span class='loglabel'>Ressenti</span><select id='lg_fl_" + k + "'>" + FEELS.map((f, i) => "<option value='" + i + "'" + ((log.feel || 0) == i ? " selected" : "") + ">" + f + "</option>").join("") + "</select></div>";
     html += "</div><textarea id='lg_cm_" + k + "' placeholder='Commentaire (FC moyenne, météo...)'>" + (log.comment || "") + "</textarea>";
-    html += "<button class='btn green' data-lg='" + k + "'>💾 Enregistrer la séance</button></div>";
+    html += "<div class='row3' style='margin-top:8px'><button class='btn green' data-lg='" + k + "'>💾 Enregistrer la séance</button><button class='btn gray' data-imp='" + k + "'>📂 Importer un fichier d'activité (.fit / .tcx / .gpx)</button></div></div>";
     html += "<div class='editor hide' id='e_" + k + "'></div></div></div>";
   });
   html += "<div style='display:flex;gap:8px;margin-top:10px;flex-wrap:wrap'>";
@@ -697,6 +716,138 @@ document.getElementById("importfile").addEventListener("change", function () {
 });
 document.getElementById("wipebtn").addEventListener("click", () => {
   if (confirm("Effacer TOUTES tes données (coches, km, notes) ?")) { state = { status: {}, log: {}, edits: {}, notes: {}, deleted: {}, added: {} }; save(); renderAll(); }
+});
+
+// ---- Import de fichiers d'activité (FIT / TCX / GPX) ----
+function fmtDur(sec) {
+  sec = Math.round(sec); const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h > 0 ? h + "h" + String(m).padStart(2, "0") : m + "'" + String(s).padStart(2, "0");
+}
+function parseFIT(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  if (buf.byteLength < 16 || u8[0] < 12) throw "En-tête FIT invalide";
+  const end = buf.byteLength - 2;
+  let p = u8[0];
+  const defs = {}; let lastTs = null;
+  const recs = [];
+  function rd(off, size, type, le) {
+    switch (type) {
+      case 0: return dv.getInt8(off);
+      case 1: case 9: case 12: case 13: return size > 1 ? dv.getUint16(off, le) : u8[off];
+      case 2: return dv.getInt16(off, le);
+      case 3: case 10: return dv.getUint16(off, le);
+      case 4: return dv.getInt32(off, le);
+      case 5: case 11: return dv.getUint32(off, le);
+      case 7: return dv.getFloat32(off, le);
+      case 8: return dv.getFloat64(off, le);
+      default: return null;
+    }
+  }
+  while (p < end) {
+    const h = u8[p];
+    if (h & 0x80) { // message de définition
+      p++;
+      const le = u8[p + 1] === 0; p += 2;
+      const gmn = le ? dv.getUint16(p, true) : dv.getUint16(p, false); p += 2;
+      const n = u8[p]; p++;
+      const fs = [];
+      for (let i = 0; i < n; i++) { fs.push({ num: u8[p], size: u8[p + 1], type: u8[p + 2] }); p += 3; }
+      if (h & 0x20) { const nd = u8[p]; p++; for (let i = 0; i < nd; i++) p += 3; }
+      defs[h & 0x0F] = { gmn, fs, le };
+    } else {
+      const l = h & 0x0F;
+      const def = defs[l];
+      if (!def) throw "Structure FIT inattendue";
+      let p2 = p + 1;
+      const vals = {};
+      for (const f of def.fs) { vals[f.num] = rd(p2, f.size, f.type, def.le); p2 += f.size; }
+      if (h & 0x40) { // timestamp compressé
+        const off = (h >> 4) & 0x0F;
+        if (lastTs !== null) vals[253] = (lastTs & ~0x1F) + off;
+      }
+      if (def.gmn === 20) { if (vals[253] != null) lastTs = vals[253]; recs.push(vals); }
+      p = p2;
+    }
+  }
+  let dist = 0, t0 = null, t1 = null, hrS = 0, hrC = 0;
+  for (const r of recs) {
+    if (r[5] != null) dist = Math.max(dist, r[5]);
+    if (r[105] != null) dist = Math.max(dist, r[105]); // distance étendue
+    if (r[253] != null) { if (t0 === null) t0 = r[253]; t1 = r[253]; }
+    if (r[6] != null && r[6] < 255) { hrS += r[6]; hrC++; }
+  }
+  if (!recs.length) throw "Aucune donnée de course dans ce fichier";
+  const km = dist / 100000; // champ distance : ×100 en mètres
+  const dur = (t0 !== null && t1 !== null && t1 > t0) ? t1 - t0 : 0;
+  return { km, time: fmtDur(dur), avgHr: hrC ? Math.round(hrS / hrC) : null };
+}
+function parseXML(txt, isGpx) {
+  let dist = 0, t0 = null, t1 = null, hrS = 0, hrC = 0, prev = null;
+  const hav = (a, b) => { const R = 6371000, r = Math.PI / 180;
+    const x = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lo - a.lo) * r / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x)); };
+  if (isGpx) {
+    const pts = txt.match(/<trkpt[^>]*lat="([-\d.]+)"[^>]*lon="([-\d.]+)"[^>]*>[\s\S]*?<\/trkpt>/g) || [];
+    let total = 0;
+    for (const tp of pts) {
+      const m = tp.match(/lat="([-\d.]+)"[^>]*lon="([-\d.]+)"/);
+      const tm = tp.match(/<time>([^<]+)<\/time>/);
+      const pt = { lat: +m[1], lo: +m[2] };
+      if (tm) { const t = Date.parse(tm[1]); if (!isNaN(t)) { if (t0 === null) t0 = t; t1 = t; } }
+      const hm = tp.match(/<(?:gpxtpx:)?hr>(\d+)</);
+      if (hm) { hrS += +hm[1]; hrC++; }
+      if (prev) total += hav(prev, pt);
+      prev = pt;
+    }
+    dist = total;
+  } else {
+    const tps = txt.match(/<Trackpoint>[\s\S]*?<\/Trackpoint>/g) || [];
+    for (const tp of tps) {
+      const dm = tp.match(/<DistanceMeters>([\d.]+)<\/DistanceMeters>/);
+      if (dm) dist = Math.max(dist, +dm[1]);
+      const tm = tp.match(/<Time>([^<]+)<\/Time>/);
+      if (tm) { const t = Date.parse(tm[1]); if (!isNaN(t)) { if (t0 === null) t0 = t; t1 = t; } }
+      const hm = tp.match(/<HeartRateBpm[^>]*>\s*<Value>(\d+)</);
+      if (hm) { hrS += +hm[1]; hrC++; }
+    }
+  }
+  if (!dist && t0 === null) throw "Aucune donnée de course dans ce fichier";
+  return { km: dist / 1000, time: (t0 !== null && t1) ? fmtDur((t1 - t0) / 1000) : "", avgHr: hrC ? Math.round(hrS / hrC) : null };
+}
+let impTarget = null;
+document.addEventListener("click", e => {
+  const b = e.target.closest("button[data-imp]");
+  if (b) { impTarget = b.dataset.imp; document.getElementById("actfile").click(); }
+});
+document.getElementById("actfile").addEventListener("change", function () {
+  const f = this.files[0]; this.value = "";
+  if (!f || !impTarget) return;
+  const name = f.name.toLowerCase();
+  const done = res => {
+    const kmEl = document.getElementById("lg_km_" + impTarget);
+    const tmEl = document.getElementById("lg_tm_" + impTarget);
+    const cmEl = document.getElementById("lg_cm_" + impTarget);
+    if (!kmEl) { alert("Ouvre les détails de la séance avant d'importer."); return; }
+    if (res.km) kmEl.value = Math.round(res.km * 10) / 10;
+    if (res.time) tmEl.value = res.time;
+    const extra = [];
+    if (res.avgHr) extra.push("FC moyenne " + res.avgHr + " bpm");
+    if (res.km && res.time) {
+      const min = res.time.includes("h") ? (+res.time.split("h")[0]) * 60 + (+res.time.split("h")[1]) : (+res.time.split("'")[0]);
+      if (min > 0 && res.km > 0) extra.push("allure moyenne " + fmtP(min * 60 / res.km) + "/km");
+    }
+    if (extra.length && cmEl && !cmEl.value) cmEl.value = extra.join(" · ");
+    state.status[impTarget] = "done"; save();
+    alert("Activité importée ✔ " + (res.km ? Math.round(res.km * 10) / 10 + " km" : "") + (res.time ? " · " + res.time : "") + (res.avgHr ? " · FC moy " + res.avgHr : "") + "\nPense à cliquer sur 💾 Enregistrer la séance.");
+  };
+  const fail = err => alert("Import impossible : " + err);
+  if (name.endsWith(".fit")) {
+    f.arrayBuffer().then(buf => { try { done(parseFIT(buf)); } catch (e) { fail(e); } });
+  } else if (name.endsWith(".tcx") || name.endsWith(".gpx")) {
+    const r = new FileReader();
+    r.onload = () => { try { done(parseXML(r.result, name.endsWith(".gpx"))); } catch (e) { fail(e); } };
+    r.readAsText(f);
+  } else fail("format non géré (utilise .fit, .tcx ou .gpx)");
 });
 
 fillSettingsForm();
