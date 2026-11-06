@@ -1,37 +1,55 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <title>🏃 Semi 1h50 — 21 février</title>
 <style>
-  :root { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; background: linear-gradient(180deg,#0b1220 0%,#0f172a 100%); color: #e2e8f0; }
+  :root {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  html[data-theme="dark"] {
+    --bg1:#0b1220; --bg2:#0f172a; --card:#16203a; --card2:#0d1830; --border:#26334f;
+    --text:#e2e8f0; --text2:#cbd5e1; --muted:#94a3b8; --faint:#64748b;
+    --input:#0b1220; --track:#1b2a45; --navbg:#101b34; --hover:#3b5590;
+  }
+  html[data-theme="light"] {
+    --bg1:#e8eef7; --bg2:#dde6f2; --card:#ffffff; --card2:#f3f6fb; --border:#c9d4e5;
+    --text:#0f172a; --text2:#1e293b; --muted:#52607a; --faint:#64748b;
+    --input:#ffffff; --track:#d3dced; --navbg:#ffffff; --hover:#93b4e8;
+  }
+  html[data-theme="forest"] {
+    --bg1:#0a1410; --bg2:#0d1a13; --card:#12241a; --card2:#0e1c14; --border:#24402f;
+    --text:#e6f2ea; --text2:#c4dccd; --muted:#8db4a0; --faint:#6b8f7a;
+    --input:#0a1410; --track:#1a3024; --navbg:#0f1e16; --hover:#3d6b4f;
+  }
+  html[data-theme="sunset"] {
+    --bg1:#1a1024; --bg2:#221430; --card:#2a1a3e; --card2:#201233; --border:#46305f;
+    --text:#f3e8ff; --text2:#e2d4f0; --muted:#b8a3cf; --faint:#9c86b8;
+    --input:#1a1024; --track:#382250; --navbg:#241538; --hover:#7c5aa8;
+  }
   * { box-sizing: border-box; margin: 0; }
-  body { max-width: 920px; margin: 0 auto; padding: 18px 14px 90px; }
-  .card { background: #16203a; border: 1px solid #26334f; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  body { background: linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%); color: var(--text); max-width: 920px; margin: 0 auto; padding: 18px 14px 95px; transition: background .3s, color .3s; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
   h1 { font-size: 1.5rem; background: linear-gradient(90deg,#60a5fa,#22c55e); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .sub { color: #94a3b8; font-size: .85rem; margin-top: 4px; }
+  .sub { color: var(--muted); font-size: .85rem; margin-top: 4px; }
   .view { display: none; } .view.on { display: block; }
   .dash { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 10px; margin-top: 14px; }
-  .stat { background: #0d1830; border: 1px solid #26334f; border-radius: 12px; padding: 12px; text-align: center; }
+  .stat { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
   .stat .v { font-size: 1.3rem; font-weight: 800; }
-  .stat .l { font-size: .64rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
+  .stat .l { font-size: .64rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
   .v.green { color: #4ade80; } .v.blue { color: #60a5fa; } .v.amber { color: #fbbf24; } .v.purple { color: #c084fc; } .v.red { color: #f87171; }
-  .progresswrap { background: #0d1830; border: 1px solid #26334f; border-radius: 99px; height: 16px; overflow: hidden; margin-top: 14px; }
+  .progresswrap { background: var(--card2); border: 1px solid var(--border); border-radius: 99px; height: 16px; overflow: hidden; margin-top: 14px; }
   .progressbar { background: linear-gradient(90deg,#22c55e,#84cc16,#fbbf24); height: 100%; width: 0%; transition: width .5s; }
-  .plabel { font-size: .75rem; color: #94a3b8; margin-top: 6px; text-align: right; }
-  .menu { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; margin-top: 16px; }
-  .mbtn { background: linear-gradient(160deg,#16203a,#101b34); border: 1px solid #26334f; border-radius: 14px; padding: 18px 12px; text-align: center; cursor: pointer; transition: all .2s; }
-  .mbtn:hover { border-color: #60a5fa; transform: translateY(-2px); }
-  .mbtn .ico { font-size: 1.6rem; } .mbtn .t { font-weight: 700; margin-top: 6px; font-size: .9rem; } .mbtn .d { font-size: .7rem; color: #94a3b8; margin-top: 3px; }
+  .plabel { font-size: .75rem; color: var(--muted); margin-top: 6px; text-align: right; }
   .hero { text-align: center; padding: 20px 8px 8px; }
   .countbig { font-size: 3rem; font-weight: 900; background: linear-gradient(90deg,#fbbf24,#f59e0b); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; }
-  .countsub { color: #94a3b8; font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
-  .nextsession { background: #0d1830; border: 1px solid #26334f; border-left: 4px solid #22c55e; border-radius: 12px; padding: 12px 14px; margin-top: 14px; font-size: .85rem; }
+  .countsub { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
+  .nextsession { background: var(--card2); border: 1px solid var(--border); border-left: 4px solid #22c55e; border-radius: 12px; padding: 12px 14px; margin-top: 14px; font-size: .85rem; }
   .nextsession b { color: #4ade80; }
-  .weeknav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .wbtn { background: #16203a; color: #cbd5e1; border: 1px solid #26334f; border-radius: 10px; padding: 7px 10px; cursor: pointer; font-size: .82rem; font-weight: 700; }
+  .weeknav { display: grid; grid-template-columns: repeat(auto-fit,minmax(54px,1fr)); gap: 6px; margin-bottom: 12px; }
+  .wbtn { background: var(--card); color: var(--text2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 4px; cursor: pointer; font-size: .8rem; font-weight: 700; text-align: center; }
   .wbtn:hover { border-color: #60a5fa; }
   .wbtn.active { background: linear-gradient(90deg,#2563eb,#3b82f6); color: #fff; border-color: #3b82f6; }
   .wbtn.done { border-color: #22c55e; color: #4ade80; } .wbtn.miss { border-color: #ef4444; color: #f87171; }
@@ -40,12 +58,12 @@
   .dot { width: 9px; height: 9px; border-radius: 99px; display: inline-block; }
   .weekheader { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
   .weekheader h2 { font-size: 1.1rem; }
-  .weekmeta { color: #94a3b8; font-size: .78rem; margin: 6px 0 12px; }
-  .session { background: #0d1830; border: 1px solid #26334f; border-radius: 14px; padding: 13px 15px; margin-bottom: 10px; transition: all .2s; }
-  .session:hover { border-color: #3b5590; }
+  .weekmeta { color: var(--muted); font-size: .78rem; margin: 6px 0 12px; }
+  .session { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; margin-bottom: 10px; transition: all .2s; }
+  .session:hover { border-color: var(--hover); }
   .session.done { border-color: #22c55e66; opacity: .55; } .session.done .sname { text-decoration: line-through; }
   .session.missed { border-color: #ef444488; opacity: .5; } .session.missed .sname { text-decoration: line-through; color: #f87171; }
-  .shead { display: flex; align-items: flex-start; gap: 11px; }
+  .shead { display: flex; align-items: flex-start; gap: 11px; flex-wrap: wrap; }
   .sname { font-weight: 700; font-size: .98rem; cursor: pointer; }
   .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   .tag { font-size: .67rem; padding: 3px 9px; border-radius: 99px; font-weight: 700; }
@@ -54,51 +72,56 @@
   .tag.sl { background: #312e81; color: #a5b4fc; } .tag.frac { background: #713f12; color: #fde047; }
   .tag.race { background: linear-gradient(90deg,#b91c1c,#ef4444); color: #fff; } .tag.real { background: #065f46; color: #6ee7b7; }
   .actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-  .iconbtn { background: transparent; border: 1px solid #26334f; color: #94a3b8; border-radius: 8px; padding: 4px 9px; cursor: pointer; font-size: .72rem; font-weight: 700; }
-  .iconbtn:hover { color: #fff; border-color: #60a5fa; }
+  .iconbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 4px 9px; cursor: pointer; font-size: .72rem; font-weight: 700; }
+  .iconbtn:hover { color: var(--text); border-color: #60a5fa; }
   .iconbtn.ok.on { background: #14532d; color: #4ade80; border-color: #22c55e; }
   .iconbtn.no.on { background: #7f1d1d; color: #fca5a5; border-color: #ef4444; }
   .iconbtn.del:hover { color: #ef4444; border-color: #ef4444; }
-  .det { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #26334f; font-size: .84rem; color: #cbd5e1; line-height: 1.55; }
+  .det { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: .84rem; color: var(--text2); line-height: 1.55; }
   .det ul { margin-left: 18px; } .det li { margin-bottom: 4px; }
   .det .pace { color: #fbbf24; font-weight: 700; } .det .hr { color: #4ade80; font-weight: 700; }
   .note { margin-top: 8px; font-size: .76rem; color: #f472b6; }
   .hide { display: none; }
   .linkbtn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: .78rem; padding: 4px 0; text-align: left; }
-  .editor, .logform { margin-top: 10px; background: #101b34; border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
-  .editor input, .editor textarea, .editor select, .logform input, .logform select, .logform textarea { background: #0b1220; border: 1px solid #26334f; color: #e2e8f0; border-radius: 8px; padding: 8px; font-size: .84rem; font-family: inherit; width: 100%; }
+  .editor, .logform { margin-top: 10px; background: var(--card); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
+  .editor input, .editor textarea, .editor select, .logform input, .logform select, .logform textarea { background: var(--input); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px; font-size: .84rem; font-family: inherit; width: 100%; }
   .editor textarea, .logform textarea { min-height: 70px; resize: vertical; }
   .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; } .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .loglabel { font-size: .66rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; display: block; }
+  .loglabel { font-size: .66rem; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; display: block; }
   .btn { background: linear-gradient(90deg,#2563eb,#3b82f6); border: none; color: #fff; border-radius: 9px; padding: 9px 14px; cursor: pointer; font-size: .8rem; font-weight: 700; }
   .btn.gray { background: #273449; } .btn.green { background: linear-gradient(90deg,#16a34a,#22c55e); } .btn.red { background: linear-gradient(90deg,#b91c1c,#ef4444); }
-  .weeknote { width: 100%; background: #0d1830; border: 1px dashed #26334f; color: #94a3b8; border-radius: 10px; padding: 9px 12px; font-size: .8rem; font-family: inherit; margin-bottom: 10px; }
-  .weeknote:focus { color: #e2e8f0; border-color: #60a5fa; outline: none; }
-  h3.sec { font-size: .85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .weeknote { width: 100%; background: var(--card2); border: 1px dashed var(--border); color: var(--muted); border-radius: 10px; padding: 9px 12px; font-size: .8rem; font-family: inherit; margin-bottom: 10px; }
+  .weeknote:focus { color: var(--text); border-color: #60a5fa; outline: none; }
+  h3.sec { font-size: .85rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
   table.paces { width: 100%; border-collapse: collapse; }
-  table.paces th { text-align: left; font-size: .68rem; color: #64748b; text-transform: uppercase; padding: 5px 8px; border-bottom: 1px solid #26334f; }
-  table.paces td { padding: 6px 8px; font-size: .8rem; border-bottom: 1px solid #1b2a45; }
+  table.paces th { text-align: left; font-size: .68rem; color: var(--faint); text-transform: uppercase; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+  table.paces td { padding: 6px 8px; font-size: .8rem; border-bottom: 1px solid var(--border); color: var(--text2); }
   table.paces .p { color: #fbbf24; font-weight: 700; }
-  .rules li, .strategy li { margin: 0 0 6px 18px; font-size: .82rem; color: #cbd5e1; line-height: 1.5; }
+  .rules li, .strategy li { margin: 0 0 6px 18px; font-size: .82rem; color: var(--text2); line-height: 1.5; }
   .chart { display: flex; align-items: flex-end; gap: 5px; height: 130px; margin-top: 8px; }
-  .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; cursor: pointer; }
-  .barwrap { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; border-radius: 6px 6px 0 0; background: #1b2a45; overflow: hidden; }
+  .bar { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; cursor: pointer; }
+  .barwrap { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; border-radius: 6px 6px 0 0; background: var(--track); overflow: hidden; }
   .barfill { width: 100%; background: linear-gradient(180deg,#3b82f6,#1d4ed8); } .barfill.donepart { background: linear-gradient(180deg,#22c55e,#15803d); }
-  .bar .n { font-size: .56rem; color: #64748b; } .bar .k { font-size: .6rem; color: #cbd5e1; }
+  .bar .n { font-size: .56rem; color: var(--faint); } .bar .k { font-size: .6rem; color: var(--text2); }
   .bar.active { outline: 2px solid #60a5fa; outline-offset: 2px; border-radius: 8px; }
   .feelrow { display: flex; gap: 5px; align-items: flex-end; height: 90px; margin-top: 8px; }
-  .feelcol { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; height: 100%; }
+  .feelcol { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; height: 100%; }
   .feelbar { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(180deg,#a78bfa,#7c3aed); min-height: 3px; }
-  .feelcol .n { font-size: .56rem; color: #64748b; }
-  .statrow { display: flex; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid #1b2a45; font-size: .82rem; }
+  .feelcol .n { font-size: .56rem; color: var(--faint); }
+  .statrow { display: flex; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: .82rem; color: var(--text2); }
   .statrow b { color: #4ade80; }
-  nav.bottom { position: fixed; bottom: 0; left: 0; right: 0; background: #101b34ee; border-top: 1px solid #26334f; backdrop-filter: blur(8px); display: flex; justify-content: center; gap: 4px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); z-index: 50; }
-  .nb { background: none; border: none; color: #64748b; padding: 6px 12px; border-radius: 10px; cursor: pointer; font-size: .68rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .nb .i { font-size: 1.15rem; }
-  .nb.on { color: #60a5fa; background: #1b2a45; }
-  .vhead { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  nav.bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navbg); border-top: 1px solid var(--border); backdrop-filter: blur(8px); display: flex; justify-content: center; gap: 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 50; }
+  .nb { background: none; border: none; color: var(--faint); padding: 5px 0; flex: 1; max-width: 110px; border-radius: 10px; cursor: pointer; font-size: .6rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nb .i { font-size: 1.1rem; }
+  .nb.on { color: #60a5fa; background: var(--track); }
   .vhead h1 { font-size: 1.2rem; }
-  footer { text-align: center; color: #475569; font-size: .72rem; margin-top: 20px; }
+  footer { text-align: center; color: var(--faint); font-size: .72rem; margin-top: 20px; }
+  .themes { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 10px; }
+  .themebtn { border: 2px solid var(--border); border-radius: 12px; padding: 12px 8px; cursor: pointer; text-align: center; background: var(--card2); color: var(--text2); font-size: .8rem; font-weight: 700; }
+  .themebtn.on { border-color: #60a5fa; color: #60a5fa; }
+  .themebtn .prev { height: 26px; border-radius: 7px; margin-bottom: 7px; border: 1px solid rgba(255,255,255,.15); }
+  .setgrouplabel { font-size: .78rem; color: var(--muted); margin: 16px 0 8px; font-weight: 700; }
+  .todo { color: var(--faint); font-size: .78rem; font-style: italic; line-height: 1.6; }
   /* ===== MOBILE ===== */
   @media (max-width: 640px) {
     body { padding: 12px 10px 100px; }
@@ -108,19 +131,16 @@
     h1 { font-size: 1.25rem !important; }
     .dash { grid-template-columns: 1fr 1fr; gap: 8px; }
     .stat { padding: 9px 6px; } .stat .v { font-size: 1.1rem; }
-    .menu { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .mbtn { padding: 13px 8px; } .mbtn .ico { font-size: 1.3rem; } .mbtn .t { font-size: .8rem; } .mbtn .d { font-size: .62rem; }
-    .weeknav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-    .wbtn { padding: 8px 2px; font-size: .72rem; text-align: center; border-radius: 8px; }
+    .weeknav { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 5px; }
+    .wbtn { padding: 8px 0; font-size: .72rem; overflow: hidden; }
     .shead { flex-wrap: wrap; }
     .actions { margin-left: 0; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .iconbtn { width: 100%; padding: 8px 2px; font-size: .68rem; border-radius: 9px; }
     .row3, .row2 { grid-template-columns: 1fr; }
     .chart { height: 100px; }
     .logform input, .logform select, .logform textarea, .editor input, .editor textarea { font-size: 16px; }
-    nav.bottom { gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
-    .nb { padding: 5px 8px; font-size: .58rem; flex: 1; max-width: 84px; }
-    .nb .i { font-size: 1.05rem; }
+    nav.bottom { padding: 5px 4px calc(5px + env(safe-area-inset-bottom)); }
+    .nb { font-size: .55rem; } .nb .i { font-size: 1.05rem; }
   }
 </style>
 </head>
@@ -144,12 +164,6 @@
     <div class="progresswrap"><div class="progressbar" id="pbar"></div></div>
     <div class="plabel" id="plabel">0%</div>
     <div class="nextsession" id="nextsession"></div>
-  </div>
-  <div class="menu">
-    <div class="mbtn" data-go="plan"><div class="ico">📅</div><div class="t">Mon plan</div><div class="d">15 semaines de séances</div></div>
-    <div class="mbtn" data-go="stats"><div class="ico">📊</div><div class="t">Mes stats</div><div class="d">Volume & ressenti</div></div>
-    <div class="mbtn" data-go="paces"><div class="ico">🎯</div><div class="t">Allures & conseils</div><div class="d">Zones Coros & stratégie</div></div>
-    <div class="mbtn" data-go="data"><div class="ico">💾</div><div class="t">Mes données</div><div class="d">Sauvegarde & transfert</div></div>
   </div>
 </div>
 
@@ -215,7 +229,7 @@
   <div class="vhead"><h1>💾 Mes données</h1></div>
   <div class="card">
     <h3 class="sec">Sauvegarde</h3>
-    <p style="font-size:.82rem;color:#cbd5e1;line-height:1.5;margin-bottom:12px">Tes séances cochées, km réels, ressentis et notes sont enregistrés dans ce navigateur. Exporte un fichier de sauvegarde pour le transférer sur un autre appareil (ou le garder en sécurité).</p>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:12px">Tes séances cochées, km réels, ressentis et notes sont enregistrés dans ce navigateur. Exporte un fichier de sauvegarde pour le transférer sur un autre appareil (ou le garder en sécurité).</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn green" id="exportbtn">⬇️ Exporter ma sauvegarde</button>
       <button class="btn" id="importbtn">⬆️ Importer une sauvegarde</button>
@@ -225,12 +239,27 @@
   </div>
 </div>
 
+<!-- ================= RÉGLAGES ================= -->
+<div class="view" id="v-settings">
+  <div class="vhead"><h1>⚙️ Réglages</h1></div>
+  <div class="card">
+    <h3 class="sec">🎨 Thème</h3>
+    <div class="themes" id="themes"></div>
+  </div>
+  <div class="card">
+    <h3 class="sec">🎯 Objectif</h3>
+    <div class="setgrouplabel">Prochainement — dis-moi si tu veux les activer :</div>
+    <div class="todo">• Modifier le temps objectif (1h50) et recalculer automatiquement les allures<br>• Ajuster les zones de FC (FC max, seuil)<br>• Changer la date de la course</div>
+  </div>
+</div>
+
 <nav class="bottom">
   <button class="nb on" data-go="home"><span class="i">🏠</span>Accueil</button>
   <button class="nb" data-go="plan"><span class="i">📅</span>Plan</button>
   <button class="nb" data-go="stats"><span class="i">📊</span>Stats</button>
   <button class="nb" data-go="paces"><span class="i">🎯</span>Allures</button>
   <button class="nb" data-go="data"><span class="i">💾</span>Données</button>
+  <button class="nb" data-go="settings"><span class="i">⚙️</span>Réglages</button>
 </nav>
 
 <footer>Plan généré le 6 nov. 2026 · Objectif 1h50 · Course le 21 février 2027</footer>
@@ -313,6 +342,33 @@ state.status = state.status || {}; state.log = state.log || {}; state.edits = st
 state.notes = state.notes || {}; state.deleted = state.deleted || {}; state.added = state.added || {};
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
+// ---- Thèmes ----
+const THEMES = [
+  { id: "dark", label: "🌙 Sombre", bg: "linear-gradient(135deg,#0b1220,#1e293b)" },
+  { id: "light", label: "☀️ Clair", bg: "linear-gradient(135deg,#e8eef7,#ffffff)" },
+  { id: "forest", label: "🌲 Forêt", bg: "linear-gradient(135deg,#0a1410,#14532d)" },
+  { id: "sunset", label: "🌅 Coucher", bg: "linear-gradient(135deg,#1a1024,#7c3aed)" },
+];
+let theme = "dark";
+try { theme = localStorage.getItem("planSemiTheme") || "dark"; } catch (e) {}
+function applyTheme(t) {
+  theme = t;
+  document.documentElement.setAttribute("data-theme", t);
+  try { localStorage.setItem("planSemiTheme", t); } catch (e) {}
+  document.querySelectorAll(".themebtn").forEach(b => b.classList.toggle("on", b.dataset.theme === t));
+}
+(function () {
+  const box = document.getElementById("themes");
+  THEMES.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "themebtn"; b.dataset.theme = t.id;
+    b.innerHTML = "<div class='prev' style='background:" + t.bg + "'></div>" + t.label;
+    b.addEventListener("click", () => applyTheme(t.id));
+    box.appendChild(b);
+  });
+  applyTheme(theme);
+})();
+
 let current = 0;
 (function () {
   const diff = Math.floor((Date.now() - START.getTime()) / (7 * 24 * 3600 * 1000));
@@ -363,13 +419,11 @@ function renderAll() {
   document.getElementById("pbar").style.width = pct + "%";
   document.getElementById("plabel").textContent = pct + "% du plan · " + Math.round(kmReal) + " km courus";
 
-  // Prochaine séance (accueil)
-  let nextHtml = "Prêt pour la prochaine séance ! Clique sur « Mon plan ».";
+  let nextHtml = "Prêt pour la prochaine séance ! Va dans « Plan ».";
   outer: for (const w of ws) {
     if (w.idx < current) continue;
     for (let si = 0; si < w.sessions.length; si++) {
-      const st = state.status[w.idx + "_" + si];
-      if (!st) {
+      if (!state.status[w.idx + "_" + si]) {
         const s = w.sessions[si];
         nextHtml = "<b>Prochaine séance</b> (S" + (w.idx + 1) + " · " + s.day + ") : <b>" + s.name + "</b> — " + s.slot;
         break outer;
@@ -378,7 +432,6 @@ function renderAll() {
   }
   document.getElementById("nextsession").innerHTML = nextHtml;
 
-  // Nav semaines + chart
   const nav = document.getElementById("weeknav"); nav.innerHTML = "";
   ws.forEach((w, i) => {
     const statuses = w.sessions.map((_, si) => state.status[w.idx + "_" + si]);
@@ -401,7 +454,6 @@ function renderAll() {
     bar.addEventListener("click", () => { current = i; renderAll(); });
     chart.appendChild(bar);
   });
-
   renderWeek(); renderStats(ws, recent);
 }
 
@@ -411,8 +463,8 @@ function renderWeek() {
   const plan = Math.round(weekPlanKm(w)), real = Math.round(weekRealKm(w));
   let html = "<div class='card' style='border-color:" + w.color + "66'>";
   html += "<div class='phase' style='color:" + w.color + "'><span class='dot' style='background:" + w.color + "'></span>" + w.phase + "</div>";
-  html += "<div class='weekheader'><h2>" + w.title + "</h2><span style='color:#94a3b8;font-size:.8rem'>📅 " + w.dates + "</span></div>";
-  html += "<div class='weekmeta'>Objectif : " + w.goal + " · Prévu : <b style='color:#e2e8f0'>" + plan + " km</b> · Réel : <b style='color:#4ade80'>" + real + " km</b></div>";
+  html += "<div class='weekheader'><h2>" + w.title + "</h2><span style='color:var(--muted);font-size:.8rem'>📅 " + w.dates + "</span></div>";
+  html += "<div class='weekmeta'>Objectif : " + w.goal + " · Prévu : <b style='color:var(--text)'>" + plan + " km</b> · Réel : <b style='color:#4ade80'>" + real + " km</b></div>";
   if (w.light) html += "<div class='note'>⬇ Semaine allégée : volume réduit pour récupérer — c'est ici que tu progresses vraiment.</div>";
   html += "<textarea class='weeknote' id='wnote' placeholder='📝 Notes de la semaine...'>" + (state.notes[w.idx] || "") + "</textarea>";
   w.sessions.forEach((s, si) => {
@@ -433,7 +485,7 @@ function renderWeek() {
     html += "<div class='det hide' id='d_" + k + "'>";
     if (s.det) html += "<ul>" + s.det.map(d => "<li>" + d + "</li>").join("") + "</ul>";
     if (s.note) html += "<div class='note'>💡 " + s.note + "</div>";
-    html += "<div class='logform'><div style='font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em'>📝 Après l'entraînement</div>";
+    html += "<div class='logform'><div style='font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em'>📝 Après l'entraînement</div>";
     html += "<div class='row3'>";
     html += "<div><span class='loglabel'>Km réels</span><input type='number' step='0.1' min='0' id='lg_km_" + k + "' value='" + (log.km || "") + "' placeholder='ex 12.5'></div>";
     html += "<div><span class='loglabel'>Durée</span><input id='lg_tm_" + k + "' value='" + (log.time || "") + "' placeholder=\"ex 1h12\"></div>";
@@ -529,10 +581,9 @@ function renderStats(ws, recent) {
   });
   const rl = document.getElementById("recentlog");
   const last = recent.slice(-8).reverse();
-  rl.innerHTML = last.length ? last.map(r => "<div class='statrow'><span>S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + (r.l && r.l.km ? r.l.km + " km" : kmNum(r.s) + " km") + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>").join("") : "<p style='color:#64748b;font-size:.82rem'>Aucune séance enregistrée pour le moment. Va sur « Mon plan » et coche ta première séance ! 🏃</p>";
+  rl.innerHTML = last.length ? last.map(r => "<div class='statrow'><span>S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + (r.l && r.l.km ? r.l.km + " km" : kmNum(r.s) + " km") + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>").join("") : "<p style='color:var(--faint);font-size:.82rem'>Aucune séance enregistrée pour le moment. Va dans « Plan » et coche ta première séance ! 🏃</p>";
 }
 
-// Données : export / import / wipe
 document.getElementById("exportbtn").addEventListener("click", function () {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
