@@ -236,6 +236,11 @@
   <div class="card"><h3 class="sec">Volume par semaine (km réels / prévus)</h3><div id="statrows"></div></div>
   <div class="card"><h3 class="sec">Ressenti moyen par semaine (1 😔 → 5 🤩)</h3><div class="feelrow" id="feelchart"></div></div>
   <div class="card"><h3 class="sec">Derniers entraînements</h3><div id="recentlog"></div></div>
+  <div class="card"><h3 class="sec">📈 Analyse des séances (fichiers .fit importés)</h3>
+    <select id="trksel" style="width:100%;padding:8px 10px;margin-bottom:10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px"></select>
+    <div id="trkbox"></div>
+    <p id="trkempty" style="color:var(--faint);font-size:.82rem">Aucune courbe pour le moment : ouvre une séance dans « Plan » → Détails ▾ → 📂 Importer un fichier d'activité (.fit), et les courbes de FC et d'allure apparaîtront ici.</p>
+  </div>
 </div>
 
 <!-- ================= ALLURES ================= -->
@@ -640,6 +645,7 @@ function renderWeek() {
     html += "<div><span class='loglabel'>Ressenti</span><select id='lg_fl_" + k + "'>" + FEELS.map((f, i) => "<option value='" + i + "'" + ((log.feel || 0) == i ? " selected" : "") + ">" + f + "</option>").join("") + "</select></div>";
     html += "</div><textarea id='lg_cm_" + k + "' placeholder='Commentaire (FC moyenne, météo...)'>" + (log.comment || "") + "</textarea>";
     html += "<div class='row3' style='margin-top:8px'><button class='btn green' data-lg='" + k + "'>💾 Enregistrer la séance</button><button class='btn gray' data-imp='" + k + "'>📂 Importer un fichier d'activité (.fit / .tcx / .gpx)</button></div></div>";
+    if (log.trk) html += "<div style='margin-top:10px'>" + trkSvg({ l: log }) + "</div>";
     html += "<div class='editor hide' id='e_" + k + "'></div></div></div>";
   });
   html += "<div style='display:flex;gap:8px;margin-top:10px;flex-wrap:wrap'>";
@@ -668,7 +674,9 @@ function wireWeek(w) {
   }));
   document.querySelectorAll("button[data-lg]").forEach(el => el.addEventListener("click", () => {
     const k = el.dataset.lg;
+    const prev = state.log[k] || {};
     state.log[k] = { km: document.getElementById("lg_km_" + k).value, time: document.getElementById("lg_tm_" + k).value, feel: document.getElementById("lg_fl_" + k).value, comment: document.getElementById("lg_cm_" + k).value };
+    if (prev.trk) state.log[k].trk = prev.trk; // conserve la courbe importée
     if (state.log[k].km) state.status[k] = "done";
     save(); renderAll();
   }));
@@ -730,6 +738,66 @@ function renderStats(ws, recent) {
   const rl = document.getElementById("recentlog");
   const last = recent.slice(-8).reverse();
   rl.innerHTML = last.length ? last.map(r => "<div class='statrow'><span>S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + (r.l && r.l.km ? r.l.km + " km" : kmNum(r.s) + " km") + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>").join("") : "<p style='color:var(--faint);font-size:.82rem'>Aucune séance enregistrée pour le moment. Va dans « Plan » et coche ta première séance ! 🏃</p>";
+  // Graphiques des séances importées
+  const trkR = recent.filter(r => r.l && r.l.trk).slice(-25).reverse();
+  const tsel = document.getElementById("trksel"), tbox = document.getElementById("trkbox"), tempty = document.getElementById("trkempty");
+  if (tsel) {
+    tsel.style.display = trkR.length ? "" : "none";
+    if (tempty) tempty.style.display = trkR.length ? "none" : "";
+    tsel.innerHTML = trkR.map((r, i) => "<option value='" + i + "'>S" + (r.w.idx + 1) + " · " + r.s.name + " · " + r.l.km + " km" + (r.l.time ? " · " + r.l.time : "") + "</option>").join("");
+    const draw = () => { tbox.innerHTML = trkR.length ? trkSvg(trkR[Math.max(0, +tsel.value || 0)]) : ""; };
+    tsel.onchange = draw; if (trkR.length) draw();
+  }
+}
+
+// ---- Graphiques de séance (tracé .fit importé) ----
+function trkSvg(r) {
+  const trk = r.l.trk;
+  if (!trk || trk.length < 3) return "";
+  const hs = (state.settings && state.settings.hrseuil) || 165;
+  const T = Math.max(1, trk[trk.length - 1][0]);
+  const W = 560, H = 120, pad = 10;
+  const xt = t => (pad + (W - 2 * pad) * t / T).toFixed(1);
+  const tick = T > 5400 ? 1800 : T > 2700 ? 600 : 300;
+  let ticks = "";
+  for (let t = tick; t < T; t += tick) ticks += "<line x1='" + xt(t) + "' y1='" + pad + "' x2='" + xt(t) + "' y2='" + (H - pad) + "' stroke='currentColor' opacity='.08'/>";
+  // --- Courbe de FC ---
+  const hrs = trk.filter(p => p[2] > 0);
+  let hrPart = "";
+  if (hrs.length > 2) {
+    let hrMin = 999, hrMax = 0;
+    hrs.forEach(p => { hrMin = Math.min(hrMin, p[2]); hrMax = Math.max(hrMax, p[2]); });
+    const lo = Math.max(60, hrMin - 8), hi = Math.min(210, hrMax + 8);
+    const yH = v => (H - pad - (H - 2 * pad) * (v - lo) / Math.max(1, hi - lo)).toFixed(1);
+    const pts = hrs.map(p => xt(p[0]) + "," + yH(p[2])).join(" ");
+    const sy = yH(hs);
+    hrPart = "<div><div style='font-size:.72rem;color:var(--faint);margin-bottom:2px'>❤️ FC — min " + hrMin + " · max " + hrMax + " bpm · ligne pointillée = seuil " + hs + "</div>" +
+      "<svg viewBox='0 0 560 120' style='width:100%;height:auto;background:var(--card2);border-radius:10px'>" + ticks +
+      "<line x1='" + pad + "' y1='" + sy + "' x2='" + (W - pad) + "' y2='" + sy + "' stroke='#e5484d' stroke-dasharray='5 5' opacity='.5'/>" +
+      "<polyline fill='none' stroke='#e5484d' stroke-width='1.8' points='" + pts + "'/></svg></div>";
+  }
+  // --- Allure lissée (moyenne glissante) ---
+  const P = [];
+  for (let i = 1; i < trk.length; i++) {
+    const dt = trk[i][0] - trk[i - 1][0], dk = trk[i][1] - trk[i - 1][1];
+    if (dt > 0 && dk > 0) P.push([trk[i][0], dt / dk]); // s/km
+  }
+  let pacePart = "";
+  if (P.length > 2) {
+    const win = Math.max(1, Math.floor(P.length / 50));
+    const PS = [];
+    let acc = 0;
+    for (let i = 0; i < P.length; i++) { acc += P[i][1]; if (i >= win) acc -= P[i - win][1]; PS.push([P[i][0], acc / Math.min(i + 1, win)]); }
+    const pLo = 180, pHi = 600; // 3'00 → 10'00 /km (vite en haut)
+    const yP = v => (pad + (H - 2 * pad) * (Math.min(pHi, Math.max(pLo, v)) - pLo) / (pHi - pLo)).toFixed(1);
+    const pts = PS.map(p => xt(p[0]) + "," + yP(p[1])).join(" ");
+    const last = trk[trk.length - 1];
+    const avgP = (last[0] > 0 && last[1] > 0) ? last[0] / last[1] : null;
+    pacePart = "<div><div style='font-size:.72rem;color:var(--faint);margin-bottom:2px'>⚡ Allure au kilomètre (lissée" + (avgP ? " · moyenne " + fmtP(avgP) + "/km" : "") + ")</div>" +
+      "<svg viewBox='0 0 560 120' style='width:100%;height:auto;background:var(--card2);border-radius:10px'>" + ticks +
+      "<polyline fill='none' stroke='#46a758' stroke-width='1.8' points='" + pts + "'/></svg></div>";
+  }
+  return "<div style='display:grid;gap:10px'>" + hrPart + pacePart + "</div>";
 }
 
 document.getElementById("exportbtn").addEventListener("click", function () {
@@ -834,7 +902,19 @@ function parseFIT(buf) {
     if (hrC === 0 && typeof sess[16] === "number" && sess[16] > 0) { hrS = sess[16] & 0xFF; hrC = 1; }
   }
   if (!dist && !dur) throw "aucune donnée de course trouvée (" + recs.length + " points lus)";
-  return { km: dist / 100000, time: fmtDur(dur), avgHr: hrC ? Math.round(hrS / hrC) : null, pts: recs.length };
+  // Tracé pour les graphiques : [t (s depuis le départ), km, fc] — max 240 points
+  let trk = null;
+  if (t0 !== null && dist > 0 && recs.length > 8) {
+    const step = Math.max(1, Math.floor(recs.length / 240));
+    trk = [];
+    for (let i = 0; i < recs.length; i += step) {
+      const r = recs[i];
+      if (typeof r[253] !== "number" || typeof r[5] !== "number") continue;
+      trk.push([Math.round(r[253] - t0), Math.round(r[5] / 100) / 1000, typeof r[3] === "number" ? r[3] : 0]);
+    }
+    if (trk.length < 4) trk = null;
+  }
+  return { km: dist / 100000, time: fmtDur(dur), avgHr: hrC ? Math.round(hrS / hrC) : null, pts: recs.length, trk: trk };
 }
 function parseXML(txt, isGpx) {
   let dist = 0, t0 = null, t1 = null, hrS = 0, hrC = 0, prev = null;
@@ -892,8 +972,9 @@ document.getElementById("actfile").addEventListener("change", function () {
       if (min > 0 && res.km > 0) extra.push("allure moyenne " + fmtP(min * 60 / res.km) + "/km");
     }
     if (extra.length && cmEl && !cmEl.value) cmEl.value = extra.join(" · ");
+    if (res.trk) { state.log[impTarget] = state.log[impTarget] || {}; state.log[impTarget].trk = res.trk; }
     state.status[impTarget] = "done"; save();
-    alert("Activité importée ✔ " + (res.km ? Math.round(res.km * 10) / 10 + " km" : "") + (res.time ? " · " + res.time : "") + (res.avgHr ? " · FC moy " + res.avgHr : "") + "\nPense à cliquer sur 💾 Enregistrer la séance.");
+    alert("Activité importée ✔ " + (res.km ? Math.round(res.km * 10) / 10 + " km" : "") + (res.time ? " · " + res.time : "") + (res.avgHr ? " · FC moy " + res.avgHr : "") + (res.trk ? " · courbe 📈 enregistrée" : "") + "\nPense à cliquer sur 💾 Enregistrer la séance.");
   };
   const fail = err => alert("Import impossible : " + err + "\n\nFais une capture de ce message et envoie-la-moi pour que je corrige.");
   const isXml = name.endsWith(".tcx") || name.endsWith(".gpx") || name.endsWith(".xml");
