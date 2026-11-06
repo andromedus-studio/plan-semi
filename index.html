@@ -122,6 +122,24 @@
   .themebtn .prev { height: 26px; border-radius: 7px; margin-bottom: 7px; border: 1px solid rgba(255,255,255,.15); }
   .setgrouplabel { font-size: .78rem; color: var(--muted); margin: 16px 0 8px; font-weight: 700; }
   .todo { color: var(--faint); font-size: .78rem; font-style: italic; line-height: 1.6; }
+  .setcard input { font-size: 16px; }
+  /* ===== IMPRESSION (frigo) ===== */
+  #printsheet { display: none; }
+  @media print {
+    body { background: #fff !important; color: #000; padding: 0; max-width: none; }
+    nav.bottom, footer, .view { display: none !important; }
+    #printsheet { display: block !important; color: #000; font-size: 10.5px; line-height: 1.35; }
+    #printsheet .ph { border-bottom: 3px solid #000; padding-bottom: 6px; margin-bottom: 10px; }
+    #printsheet .ph h1 { color: #000; background: none; -webkit-text-fill-color: #000; font-size: 20px; margin: 0; }
+    #printsheet .ph .psub { font-size: 11px; color: #333; margin-top: 2px; }
+    #printsheet .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    #printsheet .pwk { border: 1px solid #000; border-radius: 4px; padding: 6px 8px; break-inside: avoid; }
+    #printsheet .pwk h4 { font-size: 11px; margin: 0 0 4px; border-bottom: 1px solid #000; padding-bottom: 2px; }
+    #printsheet .pwk .pd { color: #333; font-weight: 400; }
+    #printsheet .ps { margin: 2px 0; display: flex; gap: 6px; }
+    #printsheet .box { display: inline-block; width: 9px; height: 9px; border: 1.2px solid #000; margin-top: 2px; }
+    #printsheet .pfoot { margin-top: 10px; font-size: 9px; color: #333; text-align: center; }
+  }
   /* ===== MOBILE ===== */
   @media (max-width: 640px) {
     body { padding: 12px 10px 100px; }
@@ -193,16 +211,8 @@
 <div class="view" id="v-paces">
   <div class="vhead"><h1>🎯 Allures & conseils</h1></div>
   <div class="card">
-    <h3 class="sec">Tes allures de référence (zones Coros : FC max 187 · seuil 165 · 4'54/km)</h3>
-    <table class="paces">
-      <tr><th>Type</th><th>Allure</th><th>FC</th><th>Usage</th></tr>
-      <tr><td>Récupération</td><td class="p">&gt; 6'59/km</td><td>&lt; 132</td><td>Décrassage</td></tr>
-      <tr><td>EF endurance</td><td class="p">6'00 – 6'45/km</td><td>132 – 149</td><td>Ton 6'30 habituel ✔</td></tr>
-      <tr><td>Tempo / seuil</td><td class="p">4'48 – 5'18/km</td><td>158 – 168</td><td>Seuil Coros : 4'54/km</td></tr>
-      <tr><td>Allure semi (cible)</td><td class="p">5'06/km</td><td>≈ 155 – 162</td><td>Rythme du jour J</td></tr>
-      <tr><td>Fractionné VMA</td><td class="p">4'24 – 4'47/km</td><td>169 – 175</td><td>400 m courts</td></tr>
-      <tr><td>Sortie longue</td><td class="p">5'40 – 6'30/km</td><td>&lt; 150</td><td>Endurance</td></tr>
-    </table>
+    <h3 class="sec">Tes allures de référence (zones Coros)</h3>
+    <div id="pacestable"></div>
   </div>
   <div class="card"><h3 class="sec">💡 Règles d'or</h3>
     <ul class="rules">
@@ -214,13 +224,8 @@
       <li>Semaines allégées S8 et S13 : <b>obligatoires</b>.</li>
     </ul>
   </div>
-  <div class="card"><h3 class="sec">⏱ Stratégie de course — 21 février</h3>
-    <ul class="strategy">
-      <li><b>Km 1-3</b> : 5'10-5'15/km — pars prudent</li>
-      <li><b>Km 4-16</b> : 5'06/km — régularité absolue</li>
-      <li><b>Km 17-21</b> : accroche, lâche tout si les jambes suivent</li>
-      <li>Passages : 10 km ≈ 51'00 · semi-temps ≈ 55'30 · gel à 45' et 1h15</li>
-    </ul>
+  <div class="card"><h3 class="sec">⏱ Stratégie de course</h3>
+    <ul class="strategy" id="strategybox"></ul>
   </div>
 </div>
 
@@ -246,10 +251,23 @@
     <h3 class="sec">🎨 Thème</h3>
     <div class="themes" id="themes"></div>
   </div>
+  <div class="card setcard">
+    <h3 class="sec">🎯 Objectif & course</h3>
+    <p style="font-size:.8rem;color:var(--text2);margin-bottom:10px;line-height:1.5">Modifie ton objectif : <b>toutes les allures du plan se recalculent automatiquement</b> (séances, tableaux, stratégie).</p>
+    <div class="row2">
+      <div><span class="loglabel">Temps objectif</span><input type="time" step="1" id="set_goal"></div>
+      <div><span class="loglabel">Date de la course</span><input type="date" id="set_date"></div>
+    </div>
+    <div class="row2" style="margin-top:8px">
+      <div><span class="loglabel">FC max</span><input type="number" id="set_hrmax"></div>
+      <div><span class="loglabel">FC au seuil</span><input type="number" id="set_hrseuil"></div>
+    </div>
+    <button class="btn green" id="setsave" style="margin-top:10px">💾 Enregistrer les réglages</button>
+  </div>
   <div class="card">
-    <h3 class="sec">🎯 Objectif</h3>
-    <div class="setgrouplabel">Prochainement — dis-moi si tu veux les activer :</div>
-    <div class="todo">• Modifier le temps objectif (1h50) et recalculer automatiquement les allures<br>• Ajuster les zones de FC (FC max, seuil)<br>• Changer la date de la course</div>
+    <h3 class="sec">🖨️ Version frigo</h3>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:12px">Génère une page imprimable (noir & blanc, cases à cocher au stylo) avec les 15 semaines. Imprime-la et colle-la sur le frigo ! Choisis « Enregistrer en PDF » si tu n'as pas d'imprimante sous la main.</p>
+    <button class="btn amber" id="printbtn">🖨️ Imprimer / PDF le plan complet</button>
   </div>
 </div>
 
@@ -261,6 +279,8 @@
   <button class="nb" data-go="data"><span class="i">💾</span>Données</button>
   <button class="nb" data-go="settings"><span class="i">⚙️</span>Réglages</button>
 </nav>
+
+<div id="printsheet"></div>
 
 <footer>Plan généré le 6 nov. 2026 · Objectif 1h50 · Course le 21 février 2027</footer>
 
@@ -375,6 +395,80 @@ let current = 0;
   if (diff >= 0 && diff < BASE.length) current = diff;
 })();
 
+// ---- Réglages objectif & recalcul des allures ----
+const BASE_SEMI = 306;   // 5'06/km — référence du plan (objectif 1h50)
+const BASE_GOAL = 6600;  // 1h50
+function fmtP(s) { s = Math.max(60, Math.round(s)); return Math.floor(s / 60) + "'" + String(s % 60).padStart(2, "0"); }
+function fmtT(s) { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return h + "h" + String(m).padStart(2, "0") + "'" + String(x).padStart(2, "0"); }
+function goalDelta() { const g = (state.settings && state.settings.goal) || BASE_GOAL; return Math.round(BASE_SEMI * (g - BASE_GOAL) / BASE_GOAL); }
+function adjPace(t) { const d = goalDelta(); if (!d) return String(t); return String(t).replace(/(\d{1,2})'(\d{2})/g, (m, a, b) => fmtP(Math.max(150, +a * 60 + (+b) + d))); }
+function hrF(v) { const hs = (state.settings && state.settings.hrseuil) || 165; return Math.round(v * hs / 165); }
+function getRace() {
+  if (state.settings && state.settings.date) { const d = new Date(state.settings.date + "T12:00:00"); if (!isNaN(d)) return d; }
+  return new Date(2027, 1, 21);
+}
+function fillSettingsForm() {
+  const s = state.settings || {};
+  document.getElementById("set_goal").value = fmtClock(s.goal || BASE_GOAL);
+  document.getElementById("set_date").value = s.date || "2027-02-21";
+  document.getElementById("set_hrmax").value = s.hrmax || 187;
+  document.getElementById("set_hrseuil").value = s.hrseuil || 165;
+}
+function fmtClock(sec) { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60; return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0"); }
+document.getElementById("setsave").addEventListener("click", () => {
+  const parts = document.getElementById("set_goal").value.split(":").map(Number);
+  state.settings = {
+    goal: (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0) || BASE_GOAL,
+    date: document.getElementById("set_date").value,
+    hrmax: +document.getElementById("set_hrmax").value || 187,
+    hrseuil: +document.getElementById("set_hrseuil").value || 165
+  };
+  save(); renderAll(); alert("Réglages enregistrés ✔\nToutes les allures ont été recalculées.");
+});
+
+function renderPacesTable() {
+  const d = goalDelta(), semi = BASE_SEMI + d, seuil = semi - 12;
+  const t = document.getElementById("pacestable");
+  t.innerHTML = "<table class='paces'>" +
+    "<tr><th>Type</th><th>Allure</th><th>FC</th><th>Usage</th></tr>" +
+    "<tr><td>Récupération</td><td class='p'>&gt; " + fmtP(seuil + 125) + "/km</td><td>&lt; " + hrF(132) + "</td><td>Décrassage</td></tr>" +
+    "<tr><td>EF endurance</td><td class='p'>" + fmtP(semi + 54) + " – " + fmtP(semi + 99) + "/km</td><td>" + hrF(132) + " – " + hrF(149) + "</td><td>Footing</td></tr>" +
+    "<tr><td>Tempo / seuil</td><td class='p'>" + fmtP(seuil - 6) + " – " + fmtP(seuil + 24) + "/km</td><td>" + hrF(158) + " – " + hrF(168) + "</td><td>Seuil : " + fmtP(seuil) + "/km</td></tr>" +
+    "<tr><td>Allure semi (cible)</td><td class='p'>" + fmtP(semi) + "/km</td><td>≈ " + hrF(155) + " – " + hrF(162) + "</td><td>Rythme du jour J</td></tr>" +
+    "<tr><td>Fractionné VMA</td><td class='p'>" + fmtP(seuil - 30) + " – " + fmtP(seuil - 7) + "/km</td><td>" + hrF(169) + " – " + hrF(175) + "</td><td>400 m courts</td></tr>" +
+    "<tr><td>Sortie longue</td><td class='p'>" + fmtP(semi + 34) + " – " + fmtP(semi + 84) + "/km</td><td>&lt; " + hrF(150) + "</td><td>Endurance</td></tr>" +
+    "</table>";
+  const goal = (state.settings && state.settings.goal) || BASE_GOAL;
+  const r = getRace();
+  const dstr = r.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  document.getElementById("strategybox").innerHTML =
+    "<li><b>Km 1-3</b> : " + fmtP(semi + 7) + "-" + fmtP(semi + 10) + "/km — pars prudent</li>" +
+    "<li><b>Km 4-16</b> : " + fmtP(semi) + "/km — régularité absolue</li>" +
+    "<li><b>Km 17-21</b> : accroche, lâche tout si les jambes suivent</li>" +
+    "<li>Passages : 10 km ≈ " + fmtT(goal * 10 / 21.0975) + " · semi-temps ≈ " + fmtT(goal / 2) + " · gel à 45' et 1h15</li>" +
+    "<li>Course : " + dstr + " · Objectif : " + fmtT(goal) + "</li>";
+}
+
+function buildPrint() {
+  const d = goalDelta(), semi = BASE_SEMI + d;
+  const goal = (state.settings && state.settings.goal) || BASE_GOAL;
+  const r = getRace();
+  let html = "<div class='ph'><h1>🏃 Plan Semi-Marathon — Objectif " + fmtT(goal) + "</h1>" +
+    "<div class='psub'>Course : " + r.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) +
+    " · Allure cible : " + fmtP(semi) + "/km · EF : " + fmtP(semi + 54) + "-" + fmtP(semi + 99) + "/km · Seuil : " + fmtP(semi - 12) + "/km</div></div>";
+  html += "<div class='pgrid'>";
+  weeks().forEach((w, wi) => {
+    html += "<div class='pwk'><h4>S" + (wi + 1) + " · <span class='pd'>" + w.dates + "</span> — " + adjPace(w.title.replace(/^Semaine \d+ — /, "")) + (w.light ? " ⬇" : "") + "</h4>";
+    w.sessions.forEach(s => {
+      html += "<div class='ps'><span class='box'></span><span><b>" + s.day + "</b> · " + adjPace(s.name) + " <span class='pd'>(" + s.slot + " · " + kmNum(s) + " km)</span></span></div>";
+    });
+    html += "</div>";
+  });
+  html += "</div><div class='pfoot'>Coche chaque séance au stylo ! · Semaines ⬇ = allégées (récupération) · Généré depuis ton app plan-semi</div>";
+  document.getElementById("printsheet").innerHTML = html;
+}
+document.getElementById("printbtn").addEventListener("click", () => { buildPrint(); window.print(); });
+
 function weeks() {
   return BASE.map((w, i) => {
     const extra = (state.added[i] || []).map(s => Object.assign({}, s, { added: true }));
@@ -411,7 +505,7 @@ function renderAll() {
     if (st === "missed") missed++;
   }));
   const pct = total ? Math.round(done / total * 100) : 0;
-  document.getElementById("cdown").textContent = Math.ceil((RACE - Date.now()) / 86400000);
+  document.getElementById("cdown").textContent = Math.ceil((getRace() - Date.now()) / 86400000);
   document.getElementById("statdone").textContent = done + "/" + total;
   document.getElementById("statmiss").textContent = missed;
   document.getElementById("statkm").textContent = Math.round(kmReal) + " km";
@@ -425,7 +519,7 @@ function renderAll() {
     for (let si = 0; si < w.sessions.length; si++) {
       if (!state.status[w.idx + "_" + si]) {
         const s = w.sessions[si];
-        nextHtml = "<b>Prochaine séance</b> (S" + (w.idx + 1) + " · " + s.day + ") : <b>" + s.name + "</b> — " + s.slot;
+        nextHtml = "<b>Prochaine séance</b> (S" + (w.idx + 1) + " · " + s.day + ") : <b>" + adjPace(s.name) + "</b> — " + s.slot;
         break outer;
       }
     }
@@ -454,7 +548,7 @@ function renderAll() {
     bar.addEventListener("click", () => { current = i; renderAll(); });
     chart.appendChild(bar);
   });
-  renderWeek(); renderStats(ws, recent);
+  renderWeek(); renderStats(ws, recent); renderPacesTable();
 }
 
 function renderWeek() {
@@ -473,7 +567,7 @@ function renderWeek() {
     const tag = tagmap[s.type] || ["EF", "ef"];
     html += "<div class='session " + (st === "done" ? "done" : st === "missed" ? "missed" : "") + "'>";
     html += "<div class='shead'><div style='flex:1'>";
-    html += "<div class='sname' data-dk='" + k + "'>" + s.name + "</div>";
+    html += "<div class='sname' data-dk='" + k + "'>" + adjPace(s.name) + "</div>";
     html += "<div class='tags'><span class='tag day'>" + s.day + "</span><span class='tag slot'>" + s.slot + " · " + s.dur + "</span><span class='tag " + tag[1] + "'>" + tag[0] + "</span><span class='tag slot'>" + kmNum(s) + " km</span>" + (st === "done" && log.km ? "<span class='tag real'>▶ " + log.km + " km réels</span>" : "") + (st === "missed" ? "<span class='tag race'>manquée</span>" : "") + "</div>";
     html += "<button class='linkbtn' data-dk='" + k + "'>Détails ▾</button></div>";
     html += "<div class='actions'>";
@@ -483,8 +577,8 @@ function renderWeek() {
     if (s.added) html += "<button class='iconbtn del' data-rk='" + k + "'>🗑</button>";
     html += "</div></div>";
     html += "<div class='det hide' id='d_" + k + "'>";
-    if (s.det) html += "<ul>" + s.det.map(d => "<li>" + d + "</li>").join("") + "</ul>";
-    if (s.note) html += "<div class='note'>💡 " + s.note + "</div>";
+    if (s.det) html += "<ul>" + s.det.map(d => "<li>" + adjPace(d) + "</li>").join("") + "</ul>";
+    if (s.note) html += "<div class='note'>💡 " + adjPace(s.note) + "</div>";
     html += "<div class='logform'><div style='font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em'>📝 Après l'entraînement</div>";
     html += "<div class='row3'>";
     html += "<div><span class='loglabel'>Km réels</span><input type='number' step='0.1' min='0' id='lg_km_" + k + "' value='" + (log.km || "") + "' placeholder='ex 12.5'></div>";
@@ -605,6 +699,7 @@ document.getElementById("wipebtn").addEventListener("click", () => {
   if (confirm("Effacer TOUTES tes données (coches, km, notes) ?")) { state = { status: {}, log: {}, edits: {}, notes: {}, deleted: {}, added: {} }; save(); renderAll(); }
 });
 
+fillSettingsForm();
 renderAll();
 </script>
 </body>
