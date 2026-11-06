@@ -98,8 +98,30 @@
   .nb.on { color: #60a5fa; background: #1b2a45; }
   .vhead { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .vhead h1 { font-size: 1.2rem; }
-  .back { background: #273449; border: none; color: #cbd5e1; border-radius: 9px; padding: 7px 12px; cursor: pointer; font-size: .78rem; font-weight: 700; }
   footer { text-align: center; color: #475569; font-size: .72rem; margin-top: 20px; }
+  /* ===== MOBILE ===== */
+  @media (max-width: 640px) {
+    body { padding: 12px 10px 100px; }
+    .card { padding: 13px 12px; border-radius: 14px; }
+    .hero { padding: 10px 4px 4px; }
+    .countbig { font-size: 2.4rem; }
+    h1 { font-size: 1.25rem !important; }
+    .dash { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat { padding: 9px 6px; } .stat .v { font-size: 1.1rem; }
+    .menu { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mbtn { padding: 13px 8px; } .mbtn .ico { font-size: 1.3rem; } .mbtn .t { font-size: .8rem; } .mbtn .d { font-size: .62rem; }
+    .weeknav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .wbtn { padding: 8px 2px; font-size: .72rem; text-align: center; border-radius: 8px; }
+    .shead { flex-wrap: wrap; }
+    .actions { margin-left: 0; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .iconbtn { width: 100%; padding: 8px 2px; font-size: .68rem; border-radius: 9px; }
+    .row3, .row2 { grid-template-columns: 1fr; }
+    .chart { height: 100px; }
+    .logform input, .logform select, .logform textarea, .editor input, .editor textarea { font-size: 16px; }
+    nav.bottom { gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+    .nb { padding: 5px 8px; font-size: .58rem; flex: 1; max-width: 84px; }
+    .nb .i { font-size: 1.05rem; }
+  }
 </style>
 </head>
 <body>
@@ -133,7 +155,7 @@
 
 <!-- ================= PLAN ================= -->
 <div class="view" id="v-plan">
-  <div class="vhead"><button class="back" data-go="home">← Accueil</button><h1>📅 Mon plan</h1></div>
+  <div class="vhead"><h1>📅 Mon plan</h1></div>
   <div class="card">
     <h3 class="sec">Volume par semaine — vert = km réellement courus</h3>
     <div class="chart" id="chart"></div>
@@ -147,7 +169,7 @@
 
 <!-- ================= STATS ================= -->
 <div class="view" id="v-stats">
-  <div class="vhead"><button class="back" data-go="home">← Accueil</button><h1>📊 Mes stats</h1></div>
+  <div class="vhead"><h1>📊 Mes stats</h1></div>
   <div class="card"><h3 class="sec">Volume par semaine (km réels / prévus)</h3><div id="statrows"></div></div>
   <div class="card"><h3 class="sec">Ressenti moyen par semaine (1 😔 → 5 🤩)</h3><div class="feelrow" id="feelchart"></div></div>
   <div class="card"><h3 class="sec">Derniers entraînements</h3><div id="recentlog"></div></div>
@@ -155,7 +177,7 @@
 
 <!-- ================= ALLURES ================= -->
 <div class="view" id="v-paces">
-  <div class="vhead"><button class="back" data-go="home">← Accueil</button><h1>🎯 Allures & conseils</h1></div>
+  <div class="vhead"><h1>🎯 Allures & conseils</h1></div>
   <div class="card">
     <h3 class="sec">Tes allures de référence (zones Coros : FC max 187 · seuil 165 · 4'54/km)</h3>
     <table class="paces">
@@ -190,7 +212,7 @@
 
 <!-- ================= DONNÉES ================= -->
 <div class="view" id="v-data">
-  <div class="vhead"><button class="back" data-go="home">← Accueil</button><h1>💾 Mes données</h1></div>
+  <div class="vhead"><h1>💾 Mes données</h1></div>
   <div class="card">
     <h3 class="sec">Sauvegarde</h3>
     <p style="font-size:.82rem;color:#cbd5e1;line-height:1.5;margin-bottom:12px">Tes séances cochées, km réels, ressentis et notes sont enregistrés dans ce navigateur. Exporte un fichier de sauvegarde pour le transférer sur un autre appareil (ou le garder en sécurité).</p>
