@@ -470,9 +470,9 @@ const W = (day, slot, type, name, dur, km, det, note) => ({ day, slot, type, nam
 
 const BASE = [
  { phase:"Bloc 1 · Fondation", color:"#22c55e", title:"Semaine 1 — Remise en route", dates:"9 – 15 nov.", goal:"Reprendre le rythme, tout en aisance", sessions:[
-   W("Mardi","Soir ≤1h","ef","EF 45'","45 min","7",["10' marche rapide ou trot très lent pour monter en température","35' footing à <span class='pace'>6'15-6'40/km</span>, FC &lt; <span class='hr'>149</span> — tu dois pouvoir parler en courant","Finir par 4 lignes droites de 20'' (souplesse, pas sprint) : genoux hauts, relâché des épaules","5' marche pour finir","Objectif de la semaine : juste remettre le corps en mouvement, aucune fatigue accumulée"]),
+   W("Mardi","Soir ≤1h","ef","EF 45'","45 min","7",["10' marche rapide ou trot très lent pour monter en température","35' footing à <span class='pace'>6'15-6'40/km</span>, FC {EF} — tu dois pouvoir parler en courant","Finir par 4 lignes droites de 20'' (souplesse, pas sprint) : genoux hauts, relâché des épaules","5' marche pour finir","Objectif de la semaine : juste remettre le corps en mouvement, aucune fatigue accumulée"]),
    W("Jeudi","Midi ≤1h","ef","EF 40'","40 min","6",["5' marche + trot très lent pour démarrer","40' footing tranquille à <span class='pace'>6'30/km</span> — allure confortable, respiration nasale possible","Sensation : pouvoir parler en courant","Étirements cuisses + mollets 5' après (sans forcer)"]),
-   W("Dimanche","Week-end","sl","Sortie longue 1h15","1h 15","12",["10' de marche/trot progressif — ne pars jamais vite sur une longue","1h05 à <span class='pace'>6'00-6'30/km</span>, FC &lt; <span class='hr'>150</span>","Boire un peu toutes les 20' même sans soif","Si ça devient dur : raccouris le pas plutôt que ralentir brutalement"]) ]},
+   W("Dimanche","Week-end","sl","Sortie longue 1h15","1h 15","12",["10' de marche/trot progressif — ne pars jamais vite sur une longue","1h05 à <span class='pace'>6'00-6'30/km</span>, FC {SL}","Boire un peu toutes les 20' même sans soif","Si ça devient dur : raccouris le pas plutôt que ralentir brutalement"]) ]},
  { phase:"Bloc 1 · Fondation", color:"#22c55e", title:"Semaine 2 — Premier tempo", dates:"16 – 22 nov.", goal:"Réveiller le seuil en douceur", sessions:[
    W("Mardi","Soir ≤1h","qual","Tempo 2×10'","55 min","9",["15' échauffement EF à <span class='pace'>6'20/km</span> + 2 lignes droites","2×10' à <span class='pace'>5'15/km</span> (FC <span class='hr'>158-165</span>) — allure « confortablement dure », tu dois pouvoir dire 3-4 mots","Récup 3' trot lent entre les blocs","10' retour au calme à <span class='pace'>6'30/km</span>","Concentre-toi sur un pas régulier (~175 pas/min) pendant les blocs"]),
    W("Jeudi","Midi ≤1h","ef","EF 45'","45 min","7",["45' footing à <span class='pace'>6'30/km</span> — récupération active après le tempo","Jambes lourdes ? Normal : c'est le but, le corps assimile"]),
@@ -481,7 +481,7 @@ const BASE = [
    W("Mardi","Soir ≤1h","qual","Tempo 3×8'","55 min","9",["15' échauffement EF + 2×20'' en trottinant pour préparer les jambes","3×8' à <span class='pace'>5'10/km</span> — régularité : les 3 blocs à la même allure","Récup 2'30 trot entre les blocs","10' retour au calme","Astuce : compte mentalement les minutes restantes du bloc, ça passe plus vite"]),
    W("Jeudi","Midi ≤1h","ef","EF 50'","50 min","8",["50' footing à <span class='pace'>6'20-6'40/km</span>","Ajoute 3 montées de 30'' en fin de séance si tu te sens bien (optionnel)"]),
    W("Samedi","Week-end","ef","EF 40'","40 min","6",["40' facile à <span class='pace'>6'30/km</span> — décrassage avant la longue","Jamais plus : le vrai travail c'est demain"]),
-   W("Dimanche","Week-end","sl","Sortie longue 1h25","1h 25","14",["10' de départ très progressif","1h15 à <span class='pace'>6'00-6'30/km</span>, FC &lt; <span class='hr'>150</span>","Boire toutes les 20-25', teste ton futur gourdins/flasque","Finis léger : les 5 dernières minutes sans forcer"]) ]},
+   W("Dimanche","Week-end","sl","Sortie longue 1h25","1h 25","14",["10' de départ très progressif","1h15 à <span class='pace'>6'00-6'30/km</span>, FC {SL}","Boire toutes les 20-25', teste ton futur gourdins/flasque","Finis léger : les 5 dernières minutes sans forcer"]) ]},
  { phase:"Bloc 1 · Fondation", color:"#22c55e", title:"Semaine 4 — Fin du bloc 1", dates:"30 nov. – 6 déc.", goal:"2×12' tempo : base solide", sessions:[
    W("Mardi","Soir ≤1h","qual","Tempo 2×12'","60 min","10",["15' échauffement EF + 2 lignes droites","2×12' à <span class='pace'>5'10/km</span>, FC <span class='hr'>158-165</span>","Récup 3' trot entre les blocs","10' retour au calme","Bloc 1 = puiser les sensations, bloc 2 = gérer la régularité"]),
    W("Jeudi","Midi ≤1h","ef","EF 50' + gainage","60 min","8",["50' footing EF à <span class='pace'>6'30/km</span>","10' gainage : 3×45'' planche, 2×30'' side-plank gauche/droite, 2×20 relevés de mollets","Ce renfo discret te protégera des blessures sur tout le plan"]),
@@ -603,7 +603,15 @@ function goalDelta() {
   const ref = p ? p.refPace : BASE_SEMI;
   return Math.round(ref * (g - base) / base);
 }
-function adjPace(t) { const d = goalDelta(); if (!d) return String(t); return String(t).replace(/(\d{1,2})'(\d{2})/g, (m, a, b) => fmtP(Math.max(150, +a * 60 + (+b) + d))); }
+function hrmaxV() { return (state.settings && +state.settings.hrmax) || 187; }
+function hrPct(p) { return Math.round(p * hrmaxV() / 100); }
+function hrZones(t) {
+  return String(t)
+    .replace(/\{EF\}/g, "60-75% de FC max (<span class='hr'>" + hrPct(60) + "-" + hrPct(75) + " bpm</span>)")
+    .replace(/\{SL\}/g, "≤ 75% de FC max (<span class='hr'>" + hrPct(75) + " bpm</span>)")
+    .replace(/\{R\}/g, "≤ 60% de FC max (<span class='hr'>" + hrPct(60) + " bpm</span>)");
+}
+function adjPace(t) { const d = goalDelta(); let s = String(t); if (d) s = s.replace(/(\d{1,2})'(\d{2})/g, (m, a, b) => fmtP(Math.max(150, +a * 60 + (+b) + d))); return hrZones(s); }
 function hrF(v) { const hs = (state.settings && state.settings.hrseuil) || 165; return Math.round(v * hs / 165); }
 function getRace() {
   if (state.plan && state.plan.raceDate) { const d = new Date(state.plan.raceDate + "T12:00:00"); if (!isNaN(d)) return d; }
@@ -666,12 +674,12 @@ function renderPacesTable() {
   const t = document.getElementById("pacestable");
   t.innerHTML = "<table class='paces'>" +
     "<tr><th>Type</th><th>Allure</th><th>FC</th><th>Usage</th></tr>" +
-    "<tr><td>Récupération</td><td class='p'>&gt; " + fmtP(seuil + 125) + "/km</td><td>&lt; " + hrF(132) + "</td><td>Décrassage</td></tr>" +
-    "<tr><td>EF endurance</td><td class='p'>" + fmtP(semi + 54) + " – " + fmtP(semi + 99) + "/km</td><td>" + hrF(132) + " – " + hrF(149) + "</td><td>Footing</td></tr>" +
+    "<tr><td>Récupération</td><td class='p'>&gt; " + fmtP(seuil + 125) + "/km</td><td>&lt; " + hrPct(60) + " (60% FCM)</td><td>Décrassage</td></tr>" +
+    "<tr><td>EF endurance</td><td class='p'>" + fmtP(semi + 54) + " – " + fmtP(semi + 99) + "/km</td><td>" + hrPct(60) + " – " + hrPct(75) + "</td><td>Footing · 60-75% FCM</td></tr>" +
     "<tr><td>Tempo / seuil</td><td class='p'>" + fmtP(seuil - 6) + " – " + fmtP(seuil + 24) + "/km</td><td>" + hrF(158) + " – " + hrF(168) + "</td><td>Seuil : " + fmtP(seuil) + "/km</td></tr>" +
     "<tr><td>Allure semi (cible)</td><td class='p'>" + fmtP(semi) + "/km</td><td>≈ " + hrF(155) + " – " + hrF(162) + "</td><td>Rythme du jour J</td></tr>" +
     "<tr><td>Fractionné VMA</td><td class='p'>" + fmtP(seuil - 30) + " – " + fmtP(seuil - 7) + "/km</td><td>" + hrF(169) + " – " + hrF(175) + "</td><td>400 m courts</td></tr>" +
-    "<tr><td>Sortie longue</td><td class='p'>" + fmtP(semi + 34) + " – " + fmtP(semi + 84) + "/km</td><td>&lt; " + hrF(150) + "</td><td>Endurance</td></tr>" +
+    "<tr><td>Sortie longue</td><td class='p'>" + fmtP(semi + 34) + " – " + fmtP(semi + 84) + "/km</td><td>&lt; " + hrPct(75) + " (75% FCM)</td><td>Endurance</td></tr>" +
     "</table>";
   const goal = (state.settings && state.settings.goal) || BASE_GOAL;
   const r = getRace();
@@ -820,7 +828,10 @@ function renderWeek() {
     if (s.added) html += "<button class='iconbtn del' data-rk='" + k + "'>🗑</button>";
     html += "</div></div>";
     html += "<div class='det hide' id='d_" + k + "'>";
-    if (s.det) html += "<ul>" + s.det.map(d => "<li>" + adjPace(d) + "</li>").join("") + "</ul>";
+    let dl = s.det || [];
+    if (s.type === "ef" && !/FC|fc/.test(dl.join(" "))) dl = dl.concat(["FC cible : {EF} — si tu dépasses, ralentis, c'est le signal n°1"]);
+    if (s.type === "sl" && !/FC|fc/.test(dl.join(" "))) dl = dl.concat(["FC cible : {SL} — reste en endurance pure, même en côte"]);
+    if (dl.length) html += "<ul>" + dl.map(d => "<li>" + adjPace(d) + "</li>").join("") + "</ul>";
     if (s.note) html += "<div class='note'>💡 " + adjPace(s.note) + "</div>";
     html += "<div class='logform'><div style='font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em'>📝 Après l'entraînement</div>";
     html += "<div class='row3'>";
