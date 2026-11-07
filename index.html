@@ -82,6 +82,14 @@
   .hero { text-align: center; padding: 26px 16px 22px; margin-bottom: 14px; border-radius: 22px; border: 1px solid var(--border); background: radial-gradient(480px 220px at 50% -25%, rgba(96,165,250,.16), transparent 70%), radial-gradient(340px 180px at 90% 110%, rgba(34,197,94,.08), transparent 70%), var(--card); box-shadow: 0 14px 36px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05); }
   html[data-theme="light"] .hero { box-shadow: 0 14px 36px rgba(30,41,59,.1), inset 0 1px 0 rgba(255,255,255,.5); }
   .countpill { display: inline-block; margin-top: 14px; padding: 14px 34px 16px; border-radius: 22px; background: linear-gradient(180deg, rgba(251,191,36,.16), rgba(245,158,11,.04)); border: 1px solid rgba(251,191,36,.38); box-shadow: 0 10px 26px rgba(245,158,11,.14), inset 0 1px 0 rgba(255,255,255,.07); }
+  .avatarwrap { position: relative; width: 104px; height: 104px; margin: 0 auto 12px; cursor: pointer; }
+  .avatar, .avatarph { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; display: flex; align-items: center; justify-content: center; }
+  .avatar { border: 3px solid rgba(96,165,250,.55); box-shadow: 0 8px 22px rgba(0,0,0,.35), 0 0 24px rgba(96,165,250,.18); transition: transform .2s, box-shadow .2s; }
+  .avatarph { background: linear-gradient(135deg, #1e3a8a, #14532d); font-size: 2.6rem; border: 3px solid var(--border); box-shadow: 0 8px 22px rgba(0,0,0,.3); }
+  html[data-theme="light"] .avatar, html[data-theme="light"] .avatarph { box-shadow: 0 8px 22px rgba(30,41,59,.16); }
+  .cambadge { position: absolute; right: -2px; bottom: -2px; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--card); background: linear-gradient(135deg,#2563eb,#3b82f6); color: #fff; font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+  @media (hover:hover) { .avatarwrap:hover .avatar, .avatarwrap:hover .avatarph { transform: scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,.4), 0 0 28px rgba(96,165,250,.3); } }
+  .avatarwrap:active .avatar, .avatarwrap:active .avatarph { transform: scale(.98); }
   .countbig { font-size: 3rem; font-weight: 900; background: linear-gradient(90deg,#fbbf24,#f59e0b); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; filter: drop-shadow(0 6px 16px rgba(245,158,11,.3)); }
   .countsub { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
   .nextsession { background: linear-gradient(90deg, rgba(34,197,94,.1), var(--card2) 60%); border: 1px solid var(--border); border-left: 4px solid #22c55e; border-radius: 12px; padding: 12px 14px; margin-top: 14px; font-size: .85rem; box-shadow: 0 3px 10px rgba(0,0,0,.15); }
@@ -220,6 +228,11 @@
 <!-- ================= ACCUEIL ================= -->
 <div class="view on" id="v-home">
   <div class="hero">
+    <div class="avatarwrap" id="avatarwrap" title="Changer la photo">
+      <img class="avatar hide" id="avatar" alt="Ma photo">
+      <div class="avatarph hide" id="avatarph">🏃</div>
+      <div class="cambadge">📷</div>
+    </div>
     <h1 id="heroTitle">🏃 Semi-Marathon 1h50</h1>
     <div class="sub" id="heroSub">Dimanche 21 février 2027</div>
     <div class="countpill"><div class="countbig" id="cdown">—</div><div class="countsub">jours avant la course</div></div>
@@ -236,6 +249,7 @@
     <div class="nextsession" id="nextsession"></div>
   </div>
 </div>
+<input type="file" accept="image/*" class="hide" id="photoin">
 
 <!-- ================= PLAN ================= -->
 <div class="view" id="v-plan">
@@ -413,6 +427,14 @@
       <div><span class="loglabel">FC au seuil</span><input type="number" id="set_hrseuil"></div>
     </div>
     <button class="btn green" id="setsave" style="margin-top:10px">💾 Enregistrer les réglages</button>
+  </div>
+  <div class="card">
+    <h3 class="sec">📷 Ma photo d'accueil</h3>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:12px">Ta photo apparaît en haut de l'accueil, à côté du compte à rebours. Touche l'avatar pour en changer, ou gère-la ici :</p>
+    <div class="row2">
+      <button class="btn" id="setphoto">📷 Changer la photo</button>
+      <button class="btn" id="delphoto" style="background:linear-gradient(90deg,#7f1d1d,#ef4444)">🗑 Supprimer</button>
+    </div>
   </div>
   <div class="card">
     <h3 class="sec">🖨️ Version frigo</h3>
@@ -1328,6 +1350,45 @@ document.getElementById("planreset").addEventListener("click", function () {
 
 fillSettingsForm();
 renderAll();
+
+// ---- Photo d'accueil (avatar) ----
+(function () {
+  const PHKEY = "planSemiPhoto";
+  const inp = document.getElementById("photoin");
+  const img = document.getElementById("avatar");
+  const ph = document.getElementById("avatarph");
+  function showPhoto() {
+    let p = ""; try { p = localStorage.getItem(PHKEY) || ""; } catch (e) {}
+    if (p) { img.src = p; img.classList.remove("hide"); ph.classList.add("hide"); }
+    else { img.classList.add("hide"); ph.classList.remove("hide"); }
+  }
+  function pick() { inp.click(); }
+  function load(file) {
+    const rd = new FileReader();
+    rd.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        const s = Math.min(im.width, im.height);           // rognage carré centré
+        const sz = Math.min(512, s);
+        const cv = document.createElement("canvas"); cv.width = cv.height = sz;
+        cv.getContext("2d").drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, sz, sz);
+        try { localStorage.setItem(PHKEY, cv.toDataURL("image/jpeg", .82)); }
+        catch (e) { alert("Impossible d'enregistrer la photo (stockage plein). Essaie une image plus légère."); return; }
+        showPhoto();
+      };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(file);
+  }
+  inp.addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) load(f); e.target.value = ""; });
+  document.getElementById("avatarwrap").addEventListener("click", pick);
+  document.getElementById("setphoto").addEventListener("click", pick);
+  document.getElementById("delphoto").addEventListener("click", () => {
+    try { localStorage.removeItem(PHKEY); } catch (e) {}
+    img.removeAttribute("src"); showPhoto();
+  });
+  showPhoto();
+})();
 </script>
 </body>
 </html>
