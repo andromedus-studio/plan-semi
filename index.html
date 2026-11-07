@@ -277,6 +277,7 @@
   <div class="card"><h3 class="sec">Ressenti moyen par semaine (1 😔 → 5 🤩)</h3><div class="feelrow" id="feelchart"></div></div>
   <div class="card"><h3 class="sec">Derniers entraînements</h3><div id="recentlog"></div></div>
   <div class="card"><h3 class="sec">📈 Analyse des séances (fichiers .fit importés)</h3>
+    <div id="zonescore" style="font-size:.84rem;margin:0 0 10px;line-height:1.5"></div>
     <select id="trksel" style="width:100%;padding:8px 10px;margin-bottom:10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px"></select>
     <div id="trkbox"></div>
     <p id="trkempty" style="color:var(--faint);font-size:.82rem">Aucune courbe pour le moment : ouvre une séance dans « Plan » → Détails ▾ → 📂 Importer un fichier d'activité (.fit), et les courbes de FC et d'allure apparaîtront ici.</p>
@@ -605,6 +606,18 @@ function goalDelta() {
 }
 function hrmaxV() { return (state.settings && +state.settings.hrmax) || 187; }
 function hrPct(p) { return Math.round(p * hrmaxV() / 100); }
+function zoneOf(type) { const lo = { ef: 60, sl: 0, qual: 80, frac: 85, race: 80 }[type] || 60, hi = { ef: 75, sl: 75, qual: 92, frac: 105, race: 95 }[type] || 75; return [lo, hi]; }
+function zoneName(type) { return { ef: "EF 60-75% FCM", sl: "endurance ≤ 75% FCM", qual: "tempo 80-92% FCM", frac: "fractionné ≥ 85% FCM", race: "course 80-95% FCM" }[type] || "EF"; }
+function zoneStats(type, trk) {
+  const p = zoneOf(type), lo = hrPct(p[0]), hi = hrPct(p[1]);
+  let inT = 0, tot = 0;
+  for (let i = 1; i < trk.length; i++) {
+    const dt = trk[i][0] - trk[i - 1][0], fc = trk[i][2];
+    if (dt > 0 && fc > 0) { tot += dt; if (fc >= lo && fc <= hi) inT += dt; }
+  }
+  return tot < 60 ? null : { pct: Math.round(100 * inT / tot), tot: tot };
+}
+function zoneColor(v) { return v >= 80 ? "#4ade80" : v >= 60 ? "#fbbf24" : "#f87171"; }
 function hrZones(t) {
   return String(t)
     .replace(/\{EF\}/g, "60-75% de FC max (<span class='hr'>" + hrPct(60) + "-" + hrPct(75) + " bpm</span>)")
@@ -840,7 +853,15 @@ function renderWeek() {
     html += "<div><span class='loglabel'>Ressenti</span><select id='lg_fl_" + k + "'>" + FEELS.map((f, i) => "<option value='" + i + "'" + ((log.feel || 0) == i ? " selected" : "") + ">" + f + "</option>").join("") + "</select></div>";
     html += "</div><textarea id='lg_cm_" + k + "' placeholder='Commentaire (FC moyenne, météo...)'>" + (log.comment || "") + "</textarea>";
     html += "<div class='row3' style='margin-top:8px'><button class='btn green' data-lg='" + k + "'>💾 Enregistrer la séance</button><button class='btn gray' data-imp='" + k + "'>📂 Importer un fichier d'activité (.fit / .tcx / .gpx)</button></div></div>";
-    if (log.trk) html += "<div style='margin-top:10px'>" + trkSvg({ l: log }) + "</div>";
+    if (log.trk) {
+      const z = zoneStats(s.type, log.trk);
+      if (z) {
+        const col = zoneColor(z.pct);
+        const msg = z.pct >= 80 ? "Impeccable 👏" : z.pct >= 60 ? "Correct, encore un peu de marge" : ((s.type === "ef" || s.type === "sl") ? "trop rapide : l'endurance se construit lentement, ralentis" : "intensité insuffisante (ou capteur capricieux)");
+        html += "<div style='font-size:.8rem;margin-top:10px;line-height:1.5'>🎯 Respect de la zone : <b style='color:" + col + "'>" + z.pct + "%</b> du temps dans la zone cible (" + zoneName(s.type) + ") — " + msg + "</div>";
+      }
+      html += "<div style='margin-top:10px'>" + trkSvg({ l: log }) + "</div>";
+    }
     html += "<div class='editor hide' id='e_" + k + "'></div></div></div>";
   });
   html += "<div style='display:flex;gap:8px;margin-top:10px;flex-wrap:wrap'>";
@@ -935,7 +956,13 @@ function renderStats(ws, recent) {
   rl.innerHTML = last.length ? last.map(r => "<div class='statrow'><span>S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + (r.l && r.l.km ? r.l.km + " km" : kmNum(r.s) + " km") + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>").join("") : "<p style='color:var(--faint);font-size:.82rem'>Aucune séance enregistrée pour le moment. Va dans « Plan » et coche ta première séance ! 🏃</p>";
   // Graphiques des séances importées
   const trkR = recent.filter(r => r.l && r.l.trk).slice(-25).reverse();
-  const tsel = document.getElementById("trksel"), tbox = document.getElementById("trkbox"), tempty = document.getElementById("trkempty");
+  const tsel = document.getElementById("trksel"), tbox = document.getElementById("trkbox"), tempty = document.getElementById("trkempty"), zsc = document.getElementById("zonescore");
+  let zIn = 0, zTot = 0, zN = 0;
+  trkR.forEach(r => { const z = zoneStats(r.s.type, r.l.trk); if (z) { zTot += z.tot; zIn += z.tot * z.pct; zN++; } });
+  if (zsc) {
+    if (zN) { const za = Math.round(zIn / zTot); zsc.innerHTML = "🎯 <b style='color:" + zoneColor(za) + "'>" + za + "%</b> de respect des zones en moyenne · " + zN + " séance" + (zN > 1 ? "s" : "") + " avec FC enregistrée"; zsc.style.display = ""; }
+    else zsc.style.display = "none";
+  }
   if (tsel) {
     tsel.style.display = trkR.length ? "" : "none";
     if (tempty) tempty.style.display = trkR.length ? "none" : "";
