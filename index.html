@@ -111,7 +111,8 @@
   .session::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 5px; border-radius: 99px; background: var(--accent, #60a5fa); box-shadow: 0 0 10px var(--accent, #60a5fa); }
   .session.t-ef::before { --accent: #22c55e; } .session.t-qual::before { --accent: #fb923c; }
   .session.t-sl::before { --accent: #818cf8; } .session.t-frac::before { --accent: #facc15; }
-  .session.t-race::before { --accent: #ef4444; }
+  .session.t-race::before { --accent: #ef4444; } .session.t-renfo::before { --accent: #a3e635; }
+  .session.dragging { outline: 2px dashed #60a5fa; outline-offset: 3px; opacity: .82; cursor: grabbing !important; }
   @media (hover:hover) {
     .session:hover { border-color: var(--hover); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.32), 0 3px 8px rgba(0,0,0,.2); }
   }
@@ -125,7 +126,7 @@
   .tag.day { background: #1e3a8a; color: #93c5fd; } .tag.slot { background: #273449; color: #d1d5db; }
   .tag.ef { background: #14532d; color: #86efac; } .tag.qual { background: #7c2d12; color: #fdba74; }
   .tag.sl { background: #312e81; color: #a5b4fc; } .tag.frac { background: #713f12; color: #fde047; }
-  .tag.race { background: linear-gradient(90deg,#b91c1c,#ef4444); color: #fff; } .tag.real { background: #065f46; color: #6ee7b7; }
+  .tag.race { background: linear-gradient(90deg,#b91c1c,#ef4444); color: #fff; } .tag.real { background: #065f46; color: #6ee7b7; } .tag.renfo { background: #365314; color: #d9f99d; }
   .actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .iconbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 4px 9px; cursor: pointer; font-size: .72rem; font-weight: 700; }
   .iconbtn:hover { color: var(--text); border-color: #60a5fa; }
@@ -135,6 +136,21 @@
   .det { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: .84rem; color: var(--text2); line-height: 1.55; }
   .det ul { margin-left: 4px; padding-left: 0; list-style: none; } .det li { margin-bottom: 7px; padding-left: 22px; position: relative; }
   .det li::before { content: "▸"; position: absolute; left: 4px; color: #60a5fa; font-weight: 700; }
+  .exorow { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px dashed var(--border); }
+  .exorow:last-child { border-bottom: none; }
+  .exoimg { flex: 0 0 92px; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 5px 3px 2px; text-align: center; }
+  .exoimg svg { width: 84px; height: 52px; color: #a3e635; display: block; margin: 0 auto; }
+  .exoimg svg g { transform-box: fill-box; }
+  .a-updn { animation: exBob 2s ease-in-out infinite; }
+  .a-hinge { animation: exHinge 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+  .a-slide { animation: exSlide 2.6s ease-in-out infinite; }
+  .a-pull { animation: exPull 2s ease-in-out infinite; }
+  @keyframes exBob { 0%, 100% { transform: translateY(2px); } 50% { transform: translateY(-3px); } }
+  @keyframes exHinge { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(24deg); } }
+  @keyframes exSlide { 0%, 100% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+  @keyframes exPull { 0%, 100% { transform: translateX(9px); } 50% { transform: translateX(0); } }
+  .exotxt { flex: 1; font-size: .8rem; line-height: 1.5; color: var(--text2); }
+  .exotxt b { display: block; color: var(--text); font-size: .84rem; margin-bottom: 2px; }
   .det .pace { color: #fbbf24; font-weight: 700; } .det .hr { color: #4ade80; font-weight: 700; }
   .note { margin-top: 8px; font-size: .76rem; color: #f472b6; }
   .hide { display: none; }
@@ -392,18 +408,52 @@
 </div>
 
 <!-- ================= DONNÉES ================= -->
-<div class="view" id="v-data">
-  <div class="vhead"><h1>💾 Mes données</h1></div>
+<!-- ================= RENFO ================= -->
+<div class="view" id="v-strength">
+  <div class="vhead"><h1>💪 Renforcement</h1></div>
   <div class="card">
-    <h3 class="sec">Sauvegarde</h3>
-    <p style="font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:12px">Tes séances cochées, km réels, ressentis et notes sont enregistrés dans ce navigateur. Exporte un fichier de sauvegarde pour le transférer sur un autre appareil (ou le garder en sécurité).</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn green" id="exportbtn">⬇️ Exporter ma sauvegarde</button>
-      <button class="btn" id="importbtn">⬆️ Importer une sauvegarde</button>
-      <button class="btn red" id="wipebtn">🗑 Tout effacer</button>
+    <p style="font-size:.84rem;color:var(--text2);line-height:1.6;margin-bottom:0">2 séances courtes par semaine les jours sans course (idéalement <b>mercredi + vendredi</b>, déjà intégrées au plan) : meilleure économie de course, moins de blessures, et une posture qui tient jusqu'au 21e km. Le renfo doit te <b>rafraîchir</b>, pas te casser — si les jambes sont lourdes le lendemain, allège.</p>
+    <div class="det"><ul>
+      <li>❌ Jamais la veille d'un tempo ou d'une sortie longue</li>
+      <li>⬇ Semaines allégées & affûtage : 1 séance légère seulement (c'est automatique dans le plan)</li>
+      <li>📈 Progression : poids du corps → élastique moyen → élastique fort</li>
+      <li>🦵 Mollets : l'assurance-vie du coureur — 2×/semaine minimum, descente lente sur une marche</li>
+      <li>⏱️ 20-25' suffisent : la constance bat la salle de sport</li>
+    </ul></div>
+  </div>
+  <div class="card">
+    <h3 class="sec">🅰️ Routine A — jambes & fessiers <span style="float:right;color:var(--faint);font-size:.72rem;font-weight:400">25' · mercredi</span></h3>
+    <div class="det">
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="56" width="30" height="10" rx="2"/><g class="a-updn"><circle cx="27" cy="15" r="7"/><path d="M27 22v24"/><path d="M27 46l-2 10"/><path d="M25 56l-10 2"/></g><path d="M44 40v14"/><path d="M41 51l3 3 3-3"/><path d="M55 54V40"/><path d="M52 43l3-3 3 3"/></svg></div>
+      <div class="exotxt"><b>Relevés de mollets · 3×15/jambe (genou tendu) + 3×10 (genou fléchi)</b>Sur une marche, pied dans le vide : monte vite sur la pointe, redescends lentement en 3 secondes. L'assurance-vie du coureur.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62h68"/><circle cx="16" cy="54" r="7"/><path d="M23 58h17" opacity=".45" stroke-dasharray="4 3"/><g class="a-hinge"><path d="M24 58l14-15"/><path d="M38 43l10 14"/></g><path d="M48 57l6 4" opacity=".45" stroke-dasharray="4 3"/><path d="M60 38v-12"/><path d="M57 29l3-3 3 3"/></svg></div>
+      <div class="exotxt"><b>Pont fessier · 3×15</b>Sur le dos, genoux pliés : pousse dans les talons et monte les hanches (traits pleins), corps aligné épaules-genoux. Élastique aux cuisses pour la version +. Redescends sans toucher le sol.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><g class="a-slide"><circle cx="60" cy="12" r="7"/><path d="M60 19v14"/><path d="M60 33l-13 19"/><path d="M60 33l13 19"/></g><path d="M44 47c5-5 27-5 32 0" stroke-dasharray="5 3"/><path d="M22 30H6"/><path d="M9 27l-3 3 3 3"/><path d="M90 30h16"/><path d="M103 27l3 3-3 3"/></svg></div>
+      <div class="exotxt"><b>Marches latérales élastique · 3×10/jambe</b>Demi-squat, élastique aux cuisses (pointillés) : fais 10 pas à gauche, 10 à droite, sans laisser l'élastique se détendre. Le bouclier anti-essuie-glace.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="48" width="30" height="12" rx="2"/><g class="a-updn"><circle cx="28" cy="12" r="7"/><path d="M28 19v19"/><path d="M28 38l-2 10"/><path d="M28 38l18 10" stroke-dasharray="4 3"/></g><path d="M68 34v16"/><path d="M65 47l3 3 3-3"/></svg></div>
+      <div class="exotxt"><b>Squat sur 1 jambe assisté ou step-down · 3×10/jambe</b>Debout sur une marche (ou un banc), jambe libre tendue devant (pointillés) : descends lentement contrôler, remonte en poussant le talon. Aide-toi d'une porte ou d'une chaise.</div></div>
+    <div class="exorow"><div class="exotxt">Échauffement 3' (fentes marchées, montées de genoux) avant · 3' d'étirements doux cuisses/mollets après.</div></div>
     </div>
-    <input type="file" id="importfile" accept=".json" class="hide">
-    <input type="file" id="actfile" class="hide">
+    <button class="btn green" id="renfoA" style="margin-top:10px">Marquer la routine A comme faite</button>
+  </div>
+  <div class="card">
+    <h3 class="sec">🅱️ Routine B — gainage & haut du corps <span style="float:right;color:var(--faint);font-size:.72rem;font-weight:400">25' · vendredi</span></h3>
+    <div class="det">
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 62h72"/><g class="a-updn"><circle cx="58" cy="48" r="7"/><path d="M51 51l-37 7"/><path d="M47 53l-7 9"/></g></svg></div>
+      <div class="exotxt"><b>Planche · 3×45''</b>Sur les avant-bras (coude sous l'épaule), corps aligné de la tête aux talons : gaine les abdos, ne creuse pas le dos, respire calmement.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 60h74"/><g class="a-updn"><circle cx="26" cy="14" r="7"/><path d="M26 21l14 26"/><path d="M29 30l-5 26"/><path d="M40 47l6 11"/><path d="M26 21l-8 12" stroke-dasharray="4 3"/></g></svg></div>
+      <div class="exotxt"><b>Planche latérale · 2×30''/côté</b>Sur un avant-bras, hanche haute : une ligne de la tête aux pieds. Bras libre levé (pointillés). La stabilité du bassin qui te tient au 15e km.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62h62"/><path d="M30 47v15"/><path d="M30 62h10"/><path d="M18 56c8-6 16-6 24 0" stroke-dasharray="5 3"/><g class="a-hinge"><circle cx="44" cy="18" r="7"/><path d="M44 25l-14 22"/></g><path d="M58 28q12 14 2 24"/><path d="M54 47l6 5 3-8"/></svg></div>
+      <div class="exotxt"><b>Good-morning élastique (ou nordic léger) · 3×12</b>Élastique sous les pieds, sur les épaules : pousse les hanches en arrière, dos bien droit, buste à 45° (flèche). Remonte en serrant les fessiers. Les ischios = tes freins et propulseurs.</div></div>
+    <div class="exorow"><div class="exoimg"><svg viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M70 22v16"/><path d="M70 18h8"/><g class="a-pull"><path d="M66 26c-4 2-16 2-20 4"/><path d="M28 31l20-5"/><path d="M42 21l6 5-8 2"/></g><circle cx="28" cy="14" r="7"/><path d="M28 21v30"/><path d="M28 51l-7 9"/><path d="M28 51l7 9"/><path d="M28 31l24 3" stroke-dasharray="4 3"/></svg></div>
+      <div class="exotxt"><b>Tirage élastique + pull-aparts · 3×15</b>Élastique fixé (poignée, poteau) : tire les coudes le long du corps (traits pleins), omopoles serrées — puis pull-aparts poitrine ouverte. Épaules basses : la posture des derniers kilomètres.</div></div>
+    <div class="exorow"><div class="exotxt">Échauffement 3' (cat-camel, rotations de buste) avant. Optionnel : 2×15 relevés de mollets en entretien.</div></div>
+    </div>
+    <button class="btn green" id="renfoB" style="margin-top:10px">Marquer la routine B comme faite</button>
+  </div>
+  <div class="card">
+    <h3 class="sec">📈 Historique</h3>
+    <p id="renfostats" style="font-size:.84rem;color:var(--text2);line-height:1.6;margin-bottom:0">Aucune séance de renfo enregistrée pour l'instant.</p>
   </div>
 </div>
 
@@ -420,6 +470,21 @@
       <div><span class="loglabel">Titre</span><input id="set_title" maxlength="60" placeholder="🏃 Semi-Marathon 1h50"></div>
       <div><span class="loglabel">Sous-titre</span><input id="set_sub" maxlength="80" placeholder="Dimanche 21 février 2027"></div>
     </div>
+  </div>
+  <div class="card setcard">
+    <h3 class="sec">💪 Renfo musculaire</h3>
+    <label style="font-size:.84rem;color:var(--text2);display:flex;gap:10px;align-items:flex-start;line-height:1.5;cursor:pointer"><input type="checkbox" id="set_renfo" style="margin-top:3px;width:16px;height:16px;accent-color:#22c55e"><span>Intégrer automatiquement les séances de renforcement dans le plan, glissées entre les jours de course (mercredi &amp; vendredi · 1 séance légère les semaines allégées et l'affûtage).<br><b style="color:var(--text)">Décoché = aucune séance de renfo dans le plan.</b></span></label>
+  </div>
+  <div class="card setcard">
+    <h3 class="sec">💾 Sauvegarde & données</h3>
+    <p style="font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:12px">Tes séances cochées, km réels, ressentis et notes sont enregistrés dans ce navigateur. Exporte un fichier de sauvegarde pour le transférer sur un autre appareil (ou le garder en sécurité).</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn green" id="exportbtn">⬇️ Exporter ma sauvegarde</button>
+      <button class="btn" id="importbtn">⬆️ Importer une sauvegarde</button>
+      <button class="btn red" id="wipebtn">🗑 Tout effacer</button>
+    </div>
+    <input type="file" id="importfile" accept=".json" class="hide">
+    <input type="file" id="actfile" class="hide">
   </div>
   <div class="card setcard">
     <h3 class="sec">🎯 Objectif & course</h3>
@@ -454,7 +519,7 @@
   <button class="nb" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M7 20v-6M12 20V8M17 20v-10"/></svg>Stats</button>
   <button class="nb" data-go="paces"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Allures</button>
   <button class="nb nbplan" data-go="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>Plan</button>
-  <button class="nb" data-go="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Données</button>
+  <button class="nb" data-go="strength"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8v8M17 8v8M7 12h10M4 7v10M20 7v10"/></svg>Renfo</button>
   <button class="nb" data-go="coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Prépa</button>
   <button class="nb" data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>Réglages</button>
 </nav>
@@ -538,7 +603,7 @@ const KEY = "planSemi150v3";
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
 state.status = state.status || {}; state.log = state.log || {}; state.edits = state.edits || {};
-state.notes = state.notes || {}; state.deleted = state.deleted || {}; state.added = state.added || {};
+state.notes = state.notes || {}; state.deleted = state.deleted || {}; state.added = state.added || {}; state.order = state.order || {};
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
 // ---- Thèmes ----
@@ -657,10 +722,14 @@ document.getElementById("setsave").addEventListener("click", () => {
     hrmax: +document.getElementById("set_hrmax").value || 187,
     hrseuil: +document.getElementById("set_hrseuil").value || 165,
     title: document.getElementById("set_title").value.trim(),
-    sub: document.getElementById("set_sub").value.trim()
+    sub: document.getElementById("set_sub").value.trim(),
+    renfo: !(state.settings && state.settings.renfo === false)
   };
   save(); renderAll(); alert("Réglages enregistrés ✔\nToutes les allures ont été recalculées.");
 });
+const setRenfo = document.getElementById("set_renfo");
+setRenfo.checked = !(state.settings && state.settings.renfo === false);
+setRenfo.addEventListener("change", () => { state.settings = state.settings || {}; state.settings.renfo = setRenfo.checked; save(); renderAll(); });
 
 function renderPacesTable() {
   const prules = document.getElementById("pacesrules");
@@ -733,18 +802,39 @@ function buildPrint() {
 }
 document.getElementById("printbtn").addEventListener("click", () => { buildPrint(); window.print(); });
 
+// Séances de renforcement : ajoutées en fin de semaine (indices des séances course inchangés)
+function renfoSessions(w) {
+  if (w.sessions.some(s => s.type === "race")) return [W("Mercredi","Maison 15'","renfo","💪 Renfo allégé","15 min","0",["Gainage léger : 2×45'' planche + 1×30'' latérale","Mollets : 2×15 relevés lents sur une marche","Rien de dur cette semaine — fraîcheur avant le jour J"])];
+  if (w.light || /Affûtage/i.test(w.phase || "")) return [W("Vendredi","Maison 20'","renfo","💪 Renfo léger","20 min","0",["Circuit court : mollets 3×15, pont fessier 3×12, planche 2×45''","On entretient, on ne construit plus — l'intensité baisse avec le volume"])];
+  return [
+    W("Mercredi","Maison 25'","renfo","💪 Renfo A — jambes & fessiers","25 min","0",["3' échauffement : fentes marchées, montées de genoux","Mollets : 3×15 relevés par jambe (genou tendu) + 3×10 genou fléchi","Fessiers : 3×12 ponts fessiers, ou marches latérales élastique 3×10/jambe","Cuisses : 3×10 squats 1 jambe assistés ou step-downs","Routine complète : vue 💪 Renfo de la barre de navigation"]),
+    W("Vendredi","Maison 25'","renfo","💪 Renfo B — gainage & haut du corps","25 min","0",["3' échauffement dynamique","Gainage : 3×45'' planche + 2×30'' planche latérale par côté","Ischios : 3×12 good-morning élastique ou nordic léger","Épaules/posture : 3×15 tirages élastique + pull-aparts","Routine complète : vue 💪 Renfo de la barre de navigation"])
+  ];
+}
+const DAYORD = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
 function weeks() {
+  const renfoOn = !(state.settings && state.settings.renfo === false);
   return PLAN().map((w, i) => {
     const extra = (state.added[i] || []).map(s => Object.assign({}, s, { added: true }));
     const kept = w.sessions.map((s, si) => ({ s, si })).filter(o => !(state.deleted[i] || []).includes(o.si)).map(o => o.s);
-    return Object.assign({}, w, { idx: i, sessions: kept.concat(extra) });
+    let sessions = kept.concat(extra, renfoOn ? renfoSessions(w) : []).map((s, si) => Object.assign({}, s, { _si: si }));
+    const ord = state.order[i];
+    sessions.sort((a, b) => {
+      const ka = ord ? ord.indexOf(a._si) : -1, kb = ord ? ord.indexOf(b._si) : -1;
+      if (ka >= 0 && kb >= 0) return ka - kb;
+      if (ka >= 0) return -1;
+      if (kb >= 0) return 1;
+      const da = DAYORD[a.day] !== undefined ? DAYORD[a.day] : 8, db = DAYORD[b.day] !== undefined ? DAYORD[b.day] : 8;
+      return (da - db) || (a._si - b._si);
+    });
+    return Object.assign({}, w, { idx: i, sessions: sessions });
   });
 }
 function kmNum(s) { const m = String(s.km || "").match(/[\d.,]+/); return m ? parseFloat(m[0].replace(",", ".")) : 0; }
 function weekPlanKm(w) { return w.sessions.reduce((a, s) => a + kmNum(s), 0); }
 function weekRealKm(w) {
-  return w.sessions.reduce((a, s, si) => {
-    const k = w.idx + "_" + si;
+  return w.sessions.reduce((a, s) => {
+    const k = w.idx + "_" + s._si;
     if (state.status[k] === "done") { const l = state.log[k]; return a + (l && l.km ? (parseFloat(l.km) || 0) : kmNum(s)); }
     return a;
   }, 0);
@@ -764,8 +854,8 @@ function renderAll() {
   const ws = weeks();
   const total = ws.reduce((a, w) => a + w.sessions.length, 0);
   let done = 0, missed = 0, kmReal = 0, recent = [];
-  ws.forEach(w => w.sessions.forEach((s, si) => {
-    const k = w.idx + "_" + si, st = state.status[k], l = state.log[k];
+  ws.forEach(w => w.sessions.forEach(s => {
+    const k = w.idx + "_" + s._si, st = state.status[k], l = state.log[k];
     if (st === "done") { done++; kmReal += (l && l.km) ? (parseFloat(l.km) || 0) : kmNum(s); recent.push({ w, s, k, l }); }
     if (st === "missed") missed++;
   }));
@@ -781,9 +871,8 @@ function renderAll() {
   let nextHtml = "Prêt pour la prochaine séance ! Va dans « Plan ».";
   outer: for (const w of ws) {
     if (w.idx < current) continue;
-    for (let si = 0; si < w.sessions.length; si++) {
-      if (!state.status[w.idx + "_" + si]) {
-        const s = w.sessions[si];
+    for (const s of w.sessions) {
+      if (!state.status[w.idx + "_" + s._si]) {
         nextHtml = "<b>Prochaine séance</b> (S" + (w.idx + 1) + " · " + s.day + ") : <b>" + adjPace(s.name) + "</b> — " + s.slot;
         break outer;
       }
@@ -793,7 +882,7 @@ function renderAll() {
 
   const nav = document.getElementById("weeknav"); nav.innerHTML = "";
   ws.forEach((w, i) => {
-    const statuses = w.sessions.map((_, si) => state.status[w.idx + "_" + si]);
+    const statuses = w.sessions.map(s => state.status[w.idx + "_" + s._si]);
     const wdone = statuses.length && statuses.every(s => s === "done");
     const wmiss = statuses.some(s => s === "missed");
     const b = document.createElement("button");
@@ -825,11 +914,11 @@ function renderWeek() {
   html += "<div class='weekmeta'>Objectif : " + w.goal + " · Prévu : <b style='color:var(--text)'>" + plan + " km</b> · Réel : <b style='color:#4ade80'>" + real + " km</b></div>";
   if (w.light) html += "<div class='note'>⬇ Semaine allégée : volume réduit pour récupérer — c'est ici que tu progresses vraiment.</div>";
   html += "<textarea class='weeknote' id='wnote' placeholder='📝 Notes de la semaine...'>" + (state.notes[w.idx] || "") + "</textarea>";
-  w.sessions.forEach((s, si) => {
-    const k = w.idx + "_" + si, st = state.status[k] || "", log = state.log[k] || {};
-    const tagmap = { ef: ["EF", "ef"], qual: ["Qualité", "qual"], sl: ["Sortie longue", "sl"], frac: ["Fractionné", "frac"], race: ["COURSE", "race"] };
+  w.sessions.forEach(s => {
+    const k = w.idx + "_" + s._si, st = state.status[k] || "", log = state.log[k] || {};
+    const tagmap = { ef: ["EF", "ef"], qual: ["Qualité", "qual"], sl: ["Sortie longue", "sl"], frac: ["Fractionné", "frac"], race: ["COURSE", "race"], renfo: ["Renfo", "renfo"] };
     const tag = tagmap[s.type] || ["EF", "ef"];
-    html += "<div class='session t-" + (s.type || "ef") + " " + (st === "done" ? "done" : st === "missed" ? "missed" : "") + "'>";
+    html += "<div class='session t-" + (s.type || "ef") + " " + (st === "done" ? "done" : st === "missed" ? "missed" : "") + "' data-si='" + s._si + "'>";
     html += "<div class='shead'><div style='flex:1'>";
     html += "<div class='sname' data-dk='" + k + "'>" + adjPace(s.name) + "</div>";
     html += "<div class='tags'><span class='tag day'>" + s.day + "</span><span class='tag slot'>" + s.slot + " · " + s.dur + "</span><span class='tag " + tag[1] + "'>" + tag[0] + "</span><span class='tag slot'>" + kmNum(s) + " km</span>" + (st === "done" && log.km ? "<span class='tag real'>▶ " + log.km + " km réels</span>" : "") + (st === "missed" ? "<span class='tag race'>manquée</span>" : "") + "</div>";
@@ -907,7 +996,7 @@ function wireWeek(w) {
   });
   document.getElementById("resetweek").addEventListener("click", () => {
     if (!confirm("Réinitialiser toute la semaine (statuts + données) ?")) return;
-    w.sessions.forEach((_, si) => { const k = w.idx + "_" + si; delete state.status[k]; delete state.log[k]; });
+    w.sessions.forEach(s => { const k = w.idx + "_" + s._si; delete state.status[k]; delete state.log[k]; });
     save(); renderAll();
   });
 }
@@ -917,7 +1006,7 @@ function openEditor(k) {
   ed.classList.remove("hide");
   if (ed.dataset.loaded) return; ed.dataset.loaded = "1";
   const ws = weeks(); const wi = Number(k.split("_")[0]), si = Number(k.split("_")[1]);
-  const s = ws.find(x => x.idx === wi).sessions[si];
+  const s = ws.find(x => x.idx === wi).sessions.find(x => x._si === si);
   const edit = state.edits[k] || {};
   const esc = v => String(v || "").replace(/'/g, "&#39;");
   ed.innerHTML =
@@ -944,7 +1033,7 @@ function renderStats(ws, recent) {
   const fc = document.getElementById("feelchart"); fc.innerHTML = "";
   ws.forEach(w => {
     let sum = 0, n = 0;
-    w.sessions.forEach((_, si) => { const l = state.log[w.idx + "_" + si]; if (l && l.feel > 0) { sum += +l.feel; n++; } });
+    w.sessions.forEach(s => { const l = state.log[w.idx + "_" + s._si]; if (l && l.feel > 0) { sum += +l.feel; n++; } });
     const avg = n ? sum / n : 0;
     const col = document.createElement("div");
     col.className = "feelcol";
@@ -1394,6 +1483,73 @@ document.getElementById("planreset").addEventListener("click", function () {
 
 fillSettingsForm();
 renderAll();
+
+// ---- Déplacer une séance : appui long 3 secondes puis glisser (délégué, une seule fois) ----
+(function () {
+  const wrap = document.getElementById("weekview");
+  if (!wrap || wrap.__drag) return;
+  wrap.__drag = true;
+  let dragEl = null, timer = null, t0x = 0, t0y = 0;
+  const stopScroll = e => e.preventDefault();
+  function endDrag() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (!dragEl) return;
+    dragEl.classList.remove("dragging");
+    document.removeEventListener("touchmove", stopScroll, { passive: false });
+    window.__dragBlock = Date.now();
+    const ord = Array.from(wrap.querySelectorAll(".session")).map(el => +el.dataset.si).filter(v => !isNaN(v));
+    if (ord.length > 1) { state.order[current] = ord; save(); }
+    dragEl = null;
+  }
+  wrap.addEventListener("click", e => { if (Date.now() - (window.__dragBlock || 0) < 400) { e.stopPropagation(); e.preventDefault(); } }, true);
+  wrap.addEventListener("pointerdown", e => {
+    if (dragEl) return;
+    const el = e.target.closest ? e.target.closest(".session") : null;
+    if (!el || !wrap.contains(el) || e.target.closest("button, input, textarea, select, a")) return;
+    t0x = e.clientX; t0y = e.clientY;
+    timer = setTimeout(() => {
+      dragEl = el; el.classList.add("dragging");
+      document.addEventListener("touchmove", stopScroll, { passive: false });
+      try { if (navigator.vibrate) navigator.vibrate(50); } catch (err) {}
+    }, 3000);
+  });
+  wrap.addEventListener("pointermove", e => {
+    if (!dragEl) {
+      if (timer && (Math.abs(e.clientX - t0x) > 10 || Math.abs(e.clientY - t0y) > 10)) { clearTimeout(timer); timer = null; }
+      return;
+    }
+    const hit = document.elementFromPoint(e.clientX, e.clientY);
+    const sib = hit && hit.closest ? hit.closest(".session") : null;
+    if (!sib || sib === dragEl || !wrap.contains(sib)) return;
+    const r = sib.getBoundingClientRect();
+    const before = e.clientY < r.top + r.height / 2;
+    if (before && sib.previousElementSibling === dragEl) return;
+    if (!before && sib.nextElementSibling === dragEl) return;
+    wrap.insertBefore(dragEl, before ? sib : sib.nextSibling);
+  });
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
+})();
+
+// ---- Renforcement : suivi "fait aujourd'hui" ----
+(function () {
+  state.renfo = state.renfo || {};
+  const t = () => new Date().toISOString().slice(0, 10);
+  const A = document.getElementById("renfoA"), B = document.getElementById("renfoB"), H = document.getElementById("renfostats");
+  function upd() {
+    const d = t();
+    A.textContent = state.renfo.A === d ? "✅ Routine A faite aujourd'hui" : "Marquer la routine A comme faite";
+    B.textContent = state.renfo.B === d ? "✅ Routine B faite aujourd'hui" : "Marquer la routine B comme faite";
+    A.style.opacity = state.renfo.A === d ? ".75" : "";
+    B.style.opacity = state.renfo.B === d ? ".75" : "";
+    const n = state.renfo.n || 0, last = [state.renfo.A, state.renfo.B].filter(Boolean).sort().pop();
+    H.textContent = n ? "💪 " + n + " séance" + (n > 1 ? "s" : "") + " de renfo enregistrée" + (n > 1 ? "s" : "") + (last ? " · dernière le " + last.split("-").reverse().join("/") : "") + "." : "Aucune séance de renfo enregistrée pour l'instant.";
+  }
+  function mark(r) { if (state.renfo[r] === t()) return; state.renfo[r] = t(); state.renfo.n = (state.renfo.n || 0) + 1; save(); upd(); }
+  A.addEventListener("click", () => mark("A"));
+  B.addEventListener("click", () => mark("B"));
+  upd();
+})();
 
 // ---- Photo d'accueil (avatar) ----
 (function () {
