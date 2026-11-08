@@ -265,6 +265,10 @@
       <div class="stat"><div class="v red" id="statmiss">0</div><div class="l">manquées</div></div>
       <div class="stat"><div class="v purple" id="statweek">S1</div><div class="l">semaine</div></div>
     </div>
+    <div class="dash" style="margin-top:10px">
+      <div class="stat"><div class="v blue" id="statrun">0 min</div><div class="l">⏱ temps de course réel</div></div>
+      <div class="stat"><div class="v" style="color:#a3e635" id="statrenfo">0 min</div><div class="l">💪 temps de renfo</div></div>
+    </div>
     <div class="progresswrap"><div class="progressbar" id="pbar"></div></div>
     <div class="plabel" id="plabel">0%</div>
     <div class="nextsession" id="nextsession"></div>
@@ -292,6 +296,7 @@
   <div class="card"><h3 class="sec">Volume par semaine (km réels / prévus)</h3><div id="statrows"></div></div>
   <div class="card"><h3 class="sec">Ressenti moyen par semaine (1 😔 → 5 🤩)</h3><div class="feelrow" id="feelchart"></div></div>
   <div class="card"><h3 class="sec">Derniers entraînements</h3><div id="recentlog"></div></div>
+  <div class="card"><h3 class="sec">💪 Renforcement</h3><div id="renfostatbox"></div></div>
   <div class="card"><h3 class="sec">📈 Analyse des séances (fichiers .fit importés)</h3>
     <div id="zonescore" style="font-size:.84rem;margin:0 0 10px;line-height:1.5"></div>
     <select id="trksel" style="width:100%;padding:8px 10px;margin-bottom:10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px"></select>
@@ -831,6 +836,18 @@ function weeks() {
   });
 }
 function kmNum(s) { const m = String(s.km || "").match(/[\d.,]+/); return m ? parseFloat(m[0].replace(",", ".")) : 0; }
+function durMin(t) { if (!t) return 0; const s = String(t); let m = 0; let x = s.match(/(\d+)\s*h\s*(\d+)?/); if (x) m += +x[1] * 60 + (+x[2] || 0); x = s.match(/(\d+)\s*(?:min\b|')/); if (x) m += +x[1]; return m; }
+function fmtHM(m) { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? h + "h" + String(r).padStart(2, "0") : r + " min"; }
+function timeStats(ws) {
+  let run = 0, rf = 0, rfDone = 0, rfTot = 0;
+  ws.forEach(w => w.sessions.forEach(s => {
+    const k = w.idx + "_" + s._si, st = state.status[k], l = state.log[k];
+    const t = (l && l.time) ? durMin(l.time) : durMin(s.dur);
+    if (s.type === "renfo") { rfTot++; if (st === "done") { rfDone++; rf += t || 25; } }
+    else if (st === "done") run += t;
+  }));
+  return { run: run, rf: rf, rfDone: rfDone, rfTot: rfTot };
+}
 function weekPlanKm(w) { return w.sessions.reduce((a, s) => a + kmNum(s), 0); }
 function weekRealKm(w) {
   return w.sessions.reduce((a, s) => {
@@ -865,6 +882,9 @@ function renderAll() {
   document.getElementById("statmiss").textContent = missed;
   document.getElementById("statkm").textContent = Math.round(kmReal) + " km";
   document.getElementById("statweek").textContent = "S" + (current + 1);
+  const tstats = timeStats(ws);
+  document.getElementById("statrun").textContent = fmtHM(tstats.run);
+  document.getElementById("statrenfo").textContent = fmtHM(tstats.rf);
   document.getElementById("pbar").style.width = pct + "%";
   document.getElementById("plabel").textContent = pct + "% du plan · " + Math.round(kmReal) + " km courus";
 
@@ -1042,7 +1062,21 @@ function renderStats(ws, recent) {
   });
   const rl = document.getElementById("recentlog");
   const last = recent.slice(-8).reverse();
-  rl.innerHTML = last.length ? last.map(r => "<div class='statrow'><span>S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + (r.l && r.l.km ? r.l.km + " km" : kmNum(r.s) + " km") + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>").join("") : "<p style='color:var(--faint);font-size:.82rem'>Aucune séance enregistrée pour le moment. Va dans « Plan » et coche ta première séance ! 🏃</p>";
+  rl.innerHTML = last.length ? last.map(r => {
+    const isRf = r.s.type === "renfo";
+    const val = isRf ? fmtHM((r.l && r.l.time) ? durMin(r.l.time) : (durMin(r.s.dur) || 25)) : ((r.l && r.l.km ? r.l.km : kmNum(r.s)) + " km");
+    return "<div class='statrow'><span>" + (isRf ? "💪 " : "") + "S" + (r.w.idx + 1) + " · " + r.s.name + (r.l && r.l.time ? " (" + r.l.time + ")" : "") + "</span><span><b>" + val + "</b> " + (r.l && r.l.feel > 0 ? FEELS[r.l.feel] : "") + "</span></div>";
+  }).join("") : "<p style='color:var(--faint);font-size:.82rem'>Aucune séance enregistrée pour le moment. Va dans « Plan » et coche ta première séance ! 🏃</p>";
+  const rb = document.getElementById("renfostatbox");
+  if (rb) {
+    const ts2 = timeStats(ws);
+    rb.innerHTML = ts2.rfTot
+      ? "<div class='statrow'><span>Séances de renfo faites</span><span><b style='color:#a3e635'>" + ts2.rfDone + " / " + ts2.rfTot + "</b></span></div>" +
+        "<div class='statrow'><span>Temps total de renfo</span><span><b style='color:#a3e635'>" + fmtHM(ts2.rf) + "</b></span></div>" +
+        "<div class='statrow'><span>Durée moyenne par séance</span><span><b>" + (ts2.rfDone ? fmtHM(ts2.rf / ts2.rfDone) : "—") + "</b></span></div>" +
+        "<div class='statrow'><span>Routines marquées dans la vue 💪</span><span><b>" + (state.renfo && state.renfo.n || 0) + "</b></span></div>"
+      : "<p style='color:var(--faint);font-size:.82rem;margin:0'>Le renfo n'est pas intégré au plan — coche « 💪 Renfo musculaire » dans ⚙️ Réglages pour le suivre ici.</p>";
+  }
   // Graphiques des séances importées
   const trkR = recent.filter(r => r.l && r.l.trk).slice(-25).reverse();
   const tsel = document.getElementById("trksel"), tbox = document.getElementById("trkbox"), tempty = document.getElementById("trkempty"), zsc = document.getElementById("zonescore");
