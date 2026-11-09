@@ -631,7 +631,34 @@ let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
 state.status = state.status || {}; state.log = state.log || {}; state.edits = state.edits || {};
 state.notes = state.notes || {}; state.deleted = state.deleted || {}; state.added = state.added || {}; state.order = state.order || {};
+function normState() { ["status","log","edits","notes","deleted","added","order","settings"].forEach(k => { if (!state[k] || typeof state[k] !== "object") state[k] = {}; }); }
+normState();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---- Messages maison (alert/confirm natifs sont bloqués dans les aperçus intégrés) ----
+function ovlBox(inner) {
+  let o = document.getElementById("uiOvl");
+  if (o) o.remove();
+  o = document.createElement("div");
+  o.id = "uiOvl";
+  o.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
+  const card = document.createElement("div");
+  card.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;max-width:430px;width:100%;color:var(--text);font-size:.9rem;line-height:1.6;box-shadow:0 20px 60px rgba(0,0,0,.5)";
+  card.innerHTML = inner;
+  o.appendChild(card);
+  o.addEventListener("click", e => { if (e.target === o) o.remove(); });
+  document.body.appendChild(o);
+  return o;
+}
+window.alert = function (msg) {
+  const o = ovlBox("<div style='white-space:pre-wrap'>" + String(msg) + "</div><button class='btn' style='width:100%;margin-top:14px'>OK</button>");
+  o.querySelector("button").addEventListener("click", () => o.remove());
+};
+function uiConfirm(msg, onYes) {
+  const o = ovlBox("<div style='white-space:pre-wrap'>" + msg + "</div><div style='display:flex;gap:10px;margin-top:14px'><button class='btn gray' style='flex:1' id='uiNo'>Annuler</button><button class='btn green' style='flex:1' id='uiYes'>✔ Confirmer</button></div>");
+  o.querySelector("#uiNo").addEventListener("click", () => o.remove());
+  o.querySelector("#uiYes").addEventListener("click", () => { o.remove(); onYes(); });
+}
 
 // ---- Thèmes ----
 const THEMES = [
@@ -1032,7 +1059,7 @@ function wireWeek(w) {
     const p = el.dataset.rk.split("_"); const wi = +p[0], si = +p[1];
     const baseLen = PLAN()[wi].sessions.length - (state.deleted[wi] || []).length;
     const idx = si - baseLen;
-    if (idx >= 0 && confirm("Supprimer cette séance ?")) { state.added[wi] = (state.added[wi] || []).filter((_, i) => i !== idx); save(); renderAll(); }
+    if (idx >= 0) uiConfirm("Supprimer cette séance ?", function () { state.added[wi] = (state.added[wi] || []).filter((_, i) => i !== idx); save(); renderAll(); });
   }));
   document.querySelectorAll("button[data-lg]").forEach(el => el.addEventListener("click", () => {
     const k = el.dataset.lg;
@@ -1052,9 +1079,10 @@ function wireWeek(w) {
     save(); renderAll();
   });
   document.getElementById("resetweek").addEventListener("click", () => {
-    if (!confirm("Réinitialiser toute la semaine (statuts + données) ?")) return;
-    w.sessions.forEach(s => { const k = w.idx + "_" + s._si; delete state.status[k]; delete state.log[k]; });
-    save(); renderAll();
+    uiConfirm("Réinitialiser toute la semaine (statuts + données) ?", function () {
+      w.sessions.forEach(s => { const k = w.idx + "_" + s._si; delete state.status[k]; delete state.log[k]; });
+      save(); renderAll();
+    });
   });
 }
 
@@ -1192,15 +1220,26 @@ document.getElementById("exportbtn").addEventListener("click", function () {
 document.getElementById("importbtn").addEventListener("click", () => document.getElementById("importfile").click());
 document.getElementById("importfile").addEventListener("change", function () {
   const f = this.files[0]; if (!f) return;
+  const inp = this;
   const r = new FileReader();
   r.onload = () => {
-    try { state = JSON.parse(r.result); save(); renderAll(); alert("Sauvegarde importée ✔"); go("home"); }
-    catch (e) { alert("Fichier invalide"); }
+    try {
+      state = JSON.parse(r.result);
+      normState();
+      save(); calcCurrent(); renderAll();
+      const hasPlan = state.plan && state.plan.weeks && state.plan.weeks.length;
+      alert(hasPlan
+        ? "Sauvegarde importée ✔ Ta prépa et tes données sont restaurées."
+        : "Sauvegarde importée ✔ — mais elle ne contient pas de prépa générée (ancien format, sans plan enregistré). Recrée ta prépa dans 🧭 Prépa : tes coches et carnets restent en place.");
+      go(hasPlan ? "plan" : "coach");
+    } catch (e) { alert("Fichier invalide : " + (e && e.message ? e.message : e)); }
+    inp.value = "";
   };
+  r.onerror = () => alert("Impossible de lire ce fichier.");
   r.readAsText(f);
 });
 document.getElementById("wipebtn").addEventListener("click", () => {
-  if (confirm("Effacer TOUTES tes données (coches, km, notes) ?")) { state = { status: {}, log: {}, edits: {}, notes: {}, deleted: {}, added: {} }; save(); renderAll(); }
+  uiConfirm("Effacer TOUTES tes données (coches, km, notes) ?", function () { state = { status: {}, log: {}, edits: {}, notes: {}, deleted: {}, added: {} }; normState(); save(); renderAll(); });
 });
 
 // ---- Import de fichiers d'activité (FIT / TCX / GPX) ----
@@ -1655,7 +1694,7 @@ function genPlan() {
     }
     out.push({ phase, color, title, dates: fD(mon) + " – " + fD(sun), goal: goal, light: light, monday: mon.toISOString().slice(0, 10), sessions: sessions });
   }
-  if (!confirm("Je vais remplacer ton plan actuel par un plan " + DISTN[dist] + " de " + N + " semaines (objectif " + fmtT(goalS) + (warned ? " — ajusté à ton niveau réel" : "") + ").\nTes coches, carnets et courbes actuels seront effacés.\n\nContinuer ?")) return;
+  uiConfirm("Je vais remplacer ton plan actuel par un plan " + DISTN[dist] + " de " + N + " semaines (objectif " + fmtT(goalS) + (warned ? " — ajusté à ton niveau réel" : "") + ").\nTes coches, carnets et courbes actuels seront effacés.\n\nContinuer ?", function () {
   state.plan = { weeks: out, raceDate: raceS, goalSec: goalS, refPace: Math.round(racePace), dist: dist, zones: z, createdAt: new Date().toISOString() };
   state.settings = state.settings || {};
   state.settings.renfo = wantRenfo;
@@ -1692,15 +1731,17 @@ function genPlan() {
     "<p style='font-size:.85rem;color:var(--text2);line-height:1.6'>Toutes tes allures sont calculées à partir de ton chrono : EF " + fmtP(z.ef1) + "-" + fmtP(z.ef2) + "/km · seuil " + fmtP(z.seuil) + "/km · allure " + DISTN[dist].toLowerCase() + " " + fmtP(z.race) + "/km. Va voir « Plan » et « Allures » — et retouche chaque séance avec ✏️ si besoin !</p>";
   document.getElementById("coachback").style.display = "";
   go("plan");
+  });
 }
 
 document.getElementById("co_finish").addEventListener("change", function () { document.getElementById("co_goal").disabled = this.checked; });
 document.getElementById("genbtn").addEventListener("click", genPlan);
 document.getElementById("planreset").addEventListener("click", function () {
-  if (!confirm("Supprimer la prépa en cours ? Tu repartiras de zéro, et tes coches, carnets et courbes de cette prépa seront effacés.")) return;
-  delete state.plan;
-  state.status = {}; state.log = {}; state.edits = {}; state.notes = {}; state.deleted = {}; state.added = {};
-  save(); calcCurrent(); renderAll(); go("coach");
+  uiConfirm("Supprimer la prépa en cours ? Tu repartiras de zéro, et tes coches, carnets et courbes de cette prépa seront effacés.", function () {
+    delete state.plan;
+    state.status = {}; state.log = {}; state.edits = {}; state.notes = {}; state.deleted = {}; state.added = {};
+    save(); calcCurrent(); renderAll(); go("coach");
+  });
 });
 (function () {
   if (state.plan) {
