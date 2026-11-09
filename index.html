@@ -206,6 +206,32 @@
   .setcard input { font-size: 16px; }
   /* ===== IMPRESSION (frigo) ===== */
   #printsheet { display: none; }
+  .conav { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; align-items: center; }
+  .conav #conext { min-width: 150px; }
+  .cowiz { padding: 20px 18px; }
+  .costep { display: none; }
+  .costep.on { display: block; animation: coIn .35s ease; }
+  @keyframes coIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .coprog { height: 8px; background: var(--card2); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+  .coprogbar { height: 100%; width: 12%; border-radius: 99px; background: linear-gradient(90deg,#2563eb,#22c55e); transition: width .35s; box-shadow: 0 0 12px rgba(37,99,235,.4); }
+  .coprogtxt { font-size: .72rem; color: var(--faint); text-align: right; margin-bottom: 16px; font-weight: 700; letter-spacing: .04em; }
+  .coq { font-size: .95rem; color: var(--text); font-weight: 800; margin: 2px 0 14px; }
+  .optgrid { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 10px; }
+  .optcard { background: var(--card2); border: 2px solid var(--border); border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+  .optcard:hover { transform: translateY(-2px); border-color: #60a5fa66; }
+  .optcard:has(input:checked) { border-color: #3b82f6; box-shadow: 0 6px 18px rgba(37,99,235,.25); background: linear-gradient(180deg, rgba(37,99,235,.14), transparent); }
+  .optcard input { display: none; }
+  .optcard .oi { font-size: 1.7rem; }
+  .optcard b { font-size: .92rem; color: var(--text); }
+  .optcard small { color: var(--faint); font-size: .68rem; }
+  .copred { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(37,99,235,.13), rgba(34,197,94,.09)); border: 1px solid var(--border); font-size: .85rem; line-height: 1.6; color: var(--text2); }
+  .goalfix { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .gchip { background: var(--card2); border: 1px solid var(--border); color: var(--text); border-radius: 11px; padding: 9px 13px; font-size: .78rem; cursor: pointer; font-weight: 700; transition: border-color .15s, transform .15s; }
+  .gchip:hover { transform: translateY(-2px); border-color: #60a5fa; box-shadow: 0 4px 12px rgba(96,165,250,.2); }
+  .noplan { border: 1px solid #3b82f6 !important; animation: planGlow 2.4s ease-in-out infinite; }
+  @keyframes planGlow { 0%, 100% { box-shadow: 0 0 10px rgba(59,130,246,.22); } 50% { box-shadow: 0 0 30px rgba(59,130,246,.6); } }
+  .nb.glowcoach { border-radius: 12px; animation: navGlow 2.4s ease-in-out infinite; }
+  @keyframes navGlow { 0%, 100% { box-shadow: 0 0 8px rgba(59,130,246,.3); color: #93c5fd; } 50% { box-shadow: 0 0 22px rgba(59,130,246,.75); color: #bfdbfe; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   @media print {
     body { background: #fff !important; color: #000; padding: 0; max-width: none; }
@@ -309,85 +335,139 @@
 <div class="view" id="v-coach">
   <div class="vhead"><h1>🧭 Crée ta préparation</h1></div>
   <div class="card">
-    <p style="font-size:.85rem;color:var(--text2);line-height:1.6">Réponds au questionnaire : l'assistant calcule tes allures à partir de ton chrono (formule de Riegel) et construit un plan complet, adapté à <b>ton</b> emploi du temps, jour par jour. Tu pourras ensuite retoucher chaque séance dans la vue « Plan ».</p>
+    <p style="font-size:.85rem;color:var(--text2);line-height:1.6">9 questions, une par écran : l'assistant analyse ton chrono (formule de Riegel), ton cardio, ton emploi du temps et même ta muscu pour construire un plan <b>cousu main</b>, jour par jour. Tu pourras retoucher chaque séance ensuite dans « Plan ».</p>
     <p style="font-size:.8rem;color:var(--faint);line-height:1.5">⚠️ Générer un plan remplace le plan actuel et efface coches, carnets et courbes. Le plan d'exemple reste récupérable en bas de page.</p>
     <button class="btn gray" id="skiplink" style="margin-top:8px">👀 Découvrir d'abord avec le plan d'exemple (Semi 1h50)</button>
   </div>
-  <div class="card">
-    <h3 class="sec">1️⃣ Ta course</h3>
-    <div class="row2">
-      <div>
-        <span class="loglabel">Distance</span>
-        <div style="display:flex;gap:14px;font-size:.88rem;flex-wrap:wrap;margin-top:4px">
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="10k">10 km</label>
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="semi" checked>Semi</label>
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_dist" value="mara">Marathon</label>
+  <div class="cowiz card" id="cowiz">
+    <div class="coprog"><div class="coprogbar" id="coprogbar"></div></div>
+    <div class="coprogtxt" id="coprogtxt">Étape 1 / 8</div>
+
+    <div class="costep" data-step="1">
+      <h3 class="sec">🎯 Ta course</h3>
+      <p class="coq">Quelle distance prépares-tu ?</p>
+      <div class="optgrid">
+        <label class="optcard"><input type="radio" name="co_dist" value="10k"><span class="oi">⚡</span><b>10 km</b><small>Explosif · 6-10 sem.</small></label>
+        <label class="optcard"><input type="radio" name="co_dist" value="semi" checked><span class="oi">🏅</span><b>Semi-marathon</b><small>21,1 km · 10-14 sem.</small></label>
+        <label class="optcard"><input type="radio" name="co_dist" value="mara"><span class="oi">🔥</span><b>Marathon</b><small>42,2 km · 14-16 sem.</small></label>
+      </div>
+    </div>
+    <div class="costep" data-step="2">
+      <h3 class="sec">📅 Le jour J</h3>
+      <p class="coq">C'est quand, ta course ?</p>
+      <div class="row2">
+        <div><span class="loglabel">Date de la course</span><input type="date" id="co_date"></div>
+        <div>
+          <span class="loglabel">Durée de la préparation</span>
+          <select id="co_weeks" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px">
+            <option value="auto">Automatique — jusqu'à la course (max 16 sem.)</option>
+            <option value="6">6 semaines (départ rapide)</option>
+            <option value="8">8 semaines</option>
+            <option value="10">10 semaines</option>
+            <option value="12">12 semaines</option>
+            <option value="14">14 semaines</option>
+            <option value="16">16 semaines (prépa complète)</option>
+          </select>
         </div>
       </div>
-      <div><span class="loglabel">Date de la course</span><input type="date" id="co_date"></div>
+      <p style="font-size:.78rem;color:var(--faint);margin-top:8px;line-height:1.4">Si la course est plus proche que ta sélection, le plan s'adapte au temps réellement disponible.</p>
     </div>
-    <div class="row2" style="margin-top:10px">
-      <div><span class="loglabel">Objectif temps (optionnel)</span><input type="time" step="1" id="co_goal"></div>
-      <div style="display:flex;align-items:flex-end"><label style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--text2)"><input type="checkbox" id="co_finish"> Pas d'objectif — juste finir</label></div>
-    </div>
-    <div class="row2" style="margin-top:10px">
-      <div>
-        <span class="loglabel">Durée de la préparation</span>
-        <select id="co_weeks" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:10px">
-          <option value="auto">Automatique — jusqu'à la course (max 16 sem.)</option>
-          <option value="6">6 semaines (départ rapide)</option>
-          <option value="8">8 semaines</option>
-          <option value="10">10 semaines</option>
-          <option value="12">12 semaines</option>
-          <option value="14">14 semaines</option>
-          <option value="16">16 semaines (prépa complète)</option>
-        </select>
-      </div>
-      <div><span class="loglabel">&nbsp;</span><span style="font-size:.78rem;color:var(--faint);display:block;line-height:1.4">Si la course est plus proche que ta sélection, le plan s'adapte au temps réellement disponible.</span></div>
-    </div>
-  </div>
-  <div class="card">
-    <h3 class="sec">2️⃣ Ton niveau</h3>
-    <div class="row2">
-      <div>
-        <span class="loglabel">Chrono de référence sur</span>
-        <div style="display:flex;gap:10px;font-size:.88rem;flex-wrap:wrap;margin-top:4px">
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="10k" checked>10 km</label>
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="semi">Semi</label>
-          <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="co_refdist" value="mara">Marathon</label>
+
+    <div class="costep" data-step="3">
+      <h3 class="sec">⏱ Ton niveau actuel</h3>
+      <p class="coq">Ton meilleur chrono récent — c'est lui qui calibre tout le plan :</p>
+      <div class="row2">
+        <div>
+          <span class="loglabel">Distance du chrono</span>
+          <div class="optgrid" style="grid-template-columns:repeat(3,1fr)">
+            <label class="optcard" style="padding:9px 4px"><input type="radio" name="co_refdist" value="10k" checked><b>10 km</b></label>
+            <label class="optcard" style="padding:9px 4px"><input type="radio" name="co_refdist" value="semi"><b>Semi</b></label>
+            <label class="optcard" style="padding:9px 4px"><input type="radio" name="co_refdist" value="mara"><b>Mara</b></label>
+          </div>
+        </div>
+        <div>
+          <span class="loglabel">Ton temps (ex : 0:50:30)</span><input type="time" step="1" id="co_ref">
+          <span class="loglabel" style="margin-top:10px">Km / semaine en ce moment</span><input type="number" id="co_base" placeholder="ex 25">
         </div>
       </div>
-      <div><span class="loglabel">Ton chrono (ex : 0:50:30)</span><input type="time" step="1" id="co_ref"></div>
+      <div class="copred" id="copred" style="display:none"></div>
     </div>
-    <div class="row2" style="margin-top:10px">
-      <div><span class="loglabel">FC max (optionnel)</span><input type="number" id="co_hrmax" placeholder="ex 190"></div>
-      <div><span class="loglabel">FC au seuil (optionnel)</span><input type="number" id="co_hrseuil" placeholder="ex 168"></div>
+
+    <div class="costep" data-step="4">
+      <h3 class="sec">🥇 Ton objectif</h3>
+      <p class="coq">Quel temps vises-tu sur la course ?</p>
+      <label style="display:flex;gap:10px;align-items:center;font-size:.86rem;color:var(--text2);margin-bottom:12px"><input type="checkbox" id="co_finish" style="width:16px;height:16px"> Pas d'objectif chrono — juste finir en beauté</label>
+      <span class="loglabel">Objectif temps</span><input type="time" step="1" id="co_goal">
+      <div class="goalfix">
+        <button class="gchip" id="gchip_prud" type="button">🛡️ Prudent</button>
+        <button class="gchip" id="gchip_eq" type="button">⚖️ Équilibré</button>
+        <button class="gchip" id="gchip_amb" type="button">🔥 Ambitieux</button>
+      </div>
+      <p id="goalhint" style="font-size:.78rem;color:var(--faint);margin-top:10px;line-height:1.5">Entre ton chrono à l'étape précédente pour recevoir des suggestions personnalisées.</p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:.85rem;color:var(--text2)">
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_first"> C'est ma première prépa structurée → progression plus douce</label>
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_nofrac"> Je déteste le fractionné → remplacé par du tempo</label>
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="co_injury"> Je reviens de blessure → récupération plus fréquente</label>
+
+    <div class="costep" data-step="5">
+      <h3 class="sec">❤️ Ton cardio (optionnel)</h3>
+      <p class="coq">Pour affiner les zones de FC des séances :</p>
+      <div class="row2">
+        <div><span class="loglabel">FC max (ex 190)</span><input type="number" id="co_hrmax" placeholder="ex 190"></div>
+        <div><span class="loglabel">FC au seuil (ex 168)</span><input type="number" id="co_hrseuil" placeholder="ex 168"></div>
+      </div>
+      <p style="font-size:.78rem;color:var(--faint);margin-top:10px;line-height:1.5">💡 Pas sûr ? Le champ FC max des Réglages fait foi par défaut, et les allures restent calculées sur ton chrono. Tu peux compléter plus tard.</p>
     </div>
-  </div>
-  <div class="card">
-    <h3 class="sec">3️⃣ Tes jours d'entraînement (+ temps dispo par jour)</h3>
-    <p style="font-size:.8rem;color:var(--faint);margin-bottom:10px;line-height:1.5">Coche tes jours disponibles et indique le temps max dont tu disposes chacun (minutes). La sortie longue ira sur ton jour le plus généreux, la qualité sur le second.</p>
-    <div id="co_days" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="0">Lundi<input type="number" min="20" class="co_min" id="co_min_0" placeholder="60" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="1" checked>Mardi<input type="number" min="20" class="co_min" id="co_min_1" placeholder="60" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="2">Mercredi<input type="number" min="20" class="co_min" id="co_min_2" placeholder="60" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="3" checked>Jeudi<input type="number" min="20" class="co_min" id="co_min_3" placeholder="60" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="4">Vendredi<input type="number" min="20" class="co_min" id="co_min_4" placeholder="45" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="5">Samedi<input type="number" min="20" class="co_min" id="co_min_5" placeholder="90" style="width:62px;margin-left:auto"></label>
-      <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="6" checked>Dimanche<input type="number" min="20" class="co_min" id="co_min_6" placeholder="120" style="width:62px;margin-left:auto"></label>
+
+    <div class="costep" data-step="6">
+      <h3 class="sec">🧬 Ton profil</h3>
+      <p class="coq">Des précisions pour que le plan te ressemble :</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;font-size:.86rem;color:var(--text2)">
+        <label class="optcard" style="flex-direction:row;text-align:left;gap:10px;padding:12px 14px"><input type="checkbox" id="co_first" style="width:16px;height:16px"><span>🌱 <b>C'est ma première prépa structurée</b><br><small style="font-size:.74rem">Progression plus douce, sorties longues raccourcies</small></span></label>
+        <label class="optcard" style="flex-direction:row;text-align:left;gap:10px;padding:12px 14px"><input type="checkbox" id="co_nofrac" style="width:16px;height:16px"><span>🐢 <b>Je déteste le fractionné</b><br><small style="font-size:.74rem">Remplacé par du tempo — mêmes bénéfices, moins de contrainte</small></span></label>
+        <label class="optcard" style="flex-direction:row;text-align:left;gap:10px;padding:12px 14px"><input type="checkbox" id="co_injury" style="width:16px;height:16px"><span>🩹 <b>Je reviens de blessure</b><br><small style="font-size:.74rem">Semaine allégée toutes les 4 semaines, montée en volume prudente</small></span></label>
+      </div>
     </div>
-    <p style="font-size:.78rem;color:var(--faint);margin-top:8px">💡 3 à 5 jours, c'est l'idéal pour progresser sans se blesser.</p>
-    <button class="btn green" id="genbtn" style="margin-top:14px">🚀 Générer mon plan</button>
+
+    <div class="costep" data-step="7">
+      <h3 class="sec">🗓️ Tes disponibilités</h3>
+      <p class="coq">Coche tes jours d'entraînement et le temps dispo (minutes) :</p>
+      <div id="co_days" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="0">Lundi<input type="number" min="20" class="co_min" id="co_min_0" placeholder="60" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="1" checked>Mardi<input type="number" min="20" class="co_min" id="co_min_1" placeholder="60" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="2">Mercredi<input type="number" min="20" class="co_min" id="co_min_2" placeholder="60" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="3" checked>Jeudi<input type="number" min="20" class="co_min" id="co_min_3" placeholder="60" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="4">Vendredi<input type="number" min="20" class="co_min" id="co_min_4" placeholder="45" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="5">Samedi<input type="number" min="20" class="co_min" id="co_min_5" placeholder="90" style="width:62px;margin-left:auto"></label>
+        <label style="display:flex;gap:8px;align-items:center;background:var(--card2);padding:8px 10px;border-radius:10px;font-size:.88rem"><input type="checkbox" class="co_day" value="6" checked>Dimanche<input type="number" min="20" class="co_min" id="co_min_6" placeholder="120" style="width:62px;margin-left:auto"></label>
+      </div>
+      <p style="font-size:.78rem;color:var(--faint);margin-top:8px">💡 La sortie longue ira sur ton jour le plus généreux (week-end avantagé), la qualité sur le second. 3 à 5 jours, c'est l'idéal pour progresser sans se blesser.</p>
+    </div>
+
+    <div class="costep" data-step="8">
+      <h3 class="sec">💪 Le renforcement musculaire</h3>
+      <p class="coq">Veux-tu des séances de muscu dans ton plan ?</p>
+      <div class="optgrid">
+        <label class="optcard" style="padding:16px 12px"><input type="radio" name="co_renfo" value="oui" checked><span class="oi">💪</span><b>Oui, intégrer le renfo</b><small>2 séances/semaine glissées entre tes jours de course · 1 légère les semaines allégées</small></label>
+        <label class="optcard" style="padding:16px 12px"><input type="radio" name="co_renfo" value="non"><span class="oi">🏃</span><b>Non, course seule</b><small>Un plan 100 % course à pied</small></label>
+      </div>
+      <p style="font-size:.78rem;color:var(--faint);margin-top:12px;line-height:1.5">💡 Tu pourras changer d'avis plus tard : une case « 💪 Renfo musculaire » dans ⚙️ Réglages ajoute ou retire les séances du plan à tout moment, sans rien perdre.</p>
+    </div>
+
+    <div class="costep" data-step="9">
+      <h3 class="sec">✅ Récapitulatif</h3>
+      <p class="coq">Vérifie ta préparation avant de la générer :</p>
+      <div class="copred" id="corecap"></div>
+      <p style="font-size:.78rem;color:var(--faint);margin-top:10px;line-height:1.5">L'assistant va calculer tes allures (Riegel), répartir qualité / endurance / sortie longue selon tes jours, placer les semaines allégées et l'affûtage, puis construire semaine par semaine. Tout reste modifiable ensuite avec ✏️.</p>
+      <button class="btn green" id="genbtn" style="margin-top:12px;width:100%">🚀 Générer mon plan</button>
+    </div>
+
+    <div class="conav">
+      <button class="btn gray" id="coback" type="button">← Précédent</button>
+      <button class="btn" id="conext" type="button">Suivant →</button>
+    </div>
   </div>
   <div class="card" id="coachresult" style="display:none"></div>
   <div class="card" id="coachback" style="display:none">
-    <p style="font-size:.82rem;color:var(--text2);margin-bottom:10px">Un plan personnalisé est actif sur cet appareil.</p>
-    <button class="btn gray" id="planreset">↺ Revenir au plan d'exemple (Semi 1h50 — 21 février 2027)</button>
+    <p style="font-size:.82rem;color:var(--text2);margin-bottom:10px">Une prépa personnalisée est déjà enregistrée sur cet appareil. Générer un nouveau plan la remplacera — ou supprime-la pour repartir de zéro :</p>
+    <button class="btn gray" id="planreset">🗑 Supprimer la prépa en cours et revenir au plan d'exemple</button>
   </div>
 </div>
 
@@ -868,6 +948,7 @@ document.querySelectorAll("[data-go]").forEach(el => el.addEventListener("click"
 
 function renderAll() {
   applyPerso();
+  document.querySelector(".nb[data-go=coach]").classList.toggle("glowcoach", !state.plan);
   const ws = weeks();
   const total = ws.reduce((a, w) => a + w.sessions.length, 0);
   let done = 0, missed = 0, kmReal = 0, recent = [];
@@ -928,7 +1009,9 @@ function renderWeek() {
   const ws = weeks(); const w = ws[current];
   const wrap = document.getElementById("weekview");
   const plan = Math.round(weekPlanKm(w)), real = Math.round(weekRealKm(w));
-  let html = "<div class='card' style='border-color:" + w.color + "66'>";
+  let html = "";
+  if (!state.plan) html += "<div class='card noplan'><h3 class='sec'>🧭 Bienvenue ! Ce plan n'est pas le tien (encore)</h3><p style='font-size:.84rem;color:var(--text2);line-height:1.6;margin-bottom:12px'>Tu regardes le <b>plan d'exemple</b> (Semi 1h50 · 15 semaines). Crée ta propre préparation : l'assistant t'analyse en 9 questions — course, chrono, cardio, jours dispo, renfo — et génère un plan avec <b>tes</b> allures, <b>tes</b> jours et <b>ta</b> date de course.</p><button class='btn' id='mkplanbtn' style='width:100%'>🚀 Créer ma prépa sur mesure</button></div>";
+  html += "<div class='card' style='border-color:" + w.color + "66'>";
   html += "<div class='phase' style='color:" + w.color + "'><span class='dot' style='background:" + w.color + "'></span>" + w.phase + "</div>";
   html += "<div class='weekheader'><h2>" + w.title + "</h2><span style='color:var(--muted);font-size:.8rem'>📅 " + w.dates + "</span></div>";
   html += "<div class='weekmeta'>Objectif : " + w.goal + " · Prévu : <b style='color:var(--text)'>" + plan + " km</b> · Réel : <b style='color:#4ade80'>" + real + " km</b></div>";
@@ -978,6 +1061,8 @@ function renderWeek() {
   html += "<button class='btn gray' id='resetweek'>↺ Réinitialiser la semaine</button></div></div>";
   wrap.innerHTML = html;
   wireWeek(w);
+  const mp = document.getElementById("mkplanbtn");
+  if (mp) mp.addEventListener("click", () => go("coach"));
 }
 
 function wireWeek(w) {
@@ -1340,6 +1425,88 @@ const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août"
 function tsec(v) { const p = String(v || "").split(":").map(Number); if (p.length < 2 || isNaN(p[0])) return 0; return p[0] * 3600 + p[1] * 60 + (p[2] || 0); }
 function durStr(min) { min = Math.round(min); if (min < 60) return min + " min"; return Math.floor(min / 60) + "h" + (min % 60 ? " " + min % 60 : ""); }
 
+// ---- Assistant pas-à-pas (wizard) ----
+(function () {
+  const steps = Array.from(document.querySelectorAll("#cowiz .costep"));
+  if (!steps.length) return;
+  let cs = 0;
+  const tsec2 = v => { const p = String(v || "").split(":").map(Number); return p.length >= 2 ? p[0] * 3600 + p[1] * 60 + (p[2] || 0) : 0; };
+  const distV = () => (document.querySelector("input[name=co_dist]:checked") || {}).value || "semi";
+  function riegel() {
+    const refD = (document.querySelector("input[name=co_refdist]:checked") || {}).value || "10k";
+    const refT = tsec2(document.getElementById("co_ref").value);
+    if (!refT) return null;
+    const dK = DISTK[distV()], dR = DISTK[refD];
+    const pace10 = (refT / dR) * Math.pow(10 / dR, 0.06);
+    return { pred: pace10 * Math.pow(dK / 10, 0.06) * dK, pace10: pace10, dK: dK };
+  }
+  function updPred() {
+    const box = document.getElementById("copred"), r = riegel();
+    if (!r) { box.style.display = "none"; return; }
+    box.style.display = "";
+    box.innerHTML = "🤖 <b>Analyse de ton chrono :</b> sur " + DISTN[distV()] + ", ton potentiel actuel tourne autour de <b>" + fmtT(Math.round(r.pred)) + "</b> (allure " + fmtP(r.pred / r.dK) + "/km). C'est la base de travail — l'étape suivante te propose des objectifs cohérents.";
+  }
+  function updChips() {
+    const r = riegel(), hint = document.getElementById("goalhint");
+    const lbl = { prud: "🛡️ Prudent", eq: "⚖️ Équilibré", amb: "🔥 Ambitieux" }, mul = { prud: 1.03, eq: 1, amb: 0.95 };
+    Object.keys(lbl).forEach(id => { const b = document.getElementById("gchip_" + id); if (b) b.textContent = r ? lbl[id] + " · " + fmtT(Math.round(r.pred * mul[id])) : lbl[id]; });
+    if (hint) hint.textContent = r
+      ? "💡 « Équilibré » = ton potentiel actuel (Riegel) : l'objectif le plus fiable. « Ambitieux » (-5%) se tient si tu fais toutes tes séances et que ton volume monte. « Prudent » (+3%) laisse de la marge pour savourer."
+      : "Entre ton chrono à l'étape précédente pour recevoir des suggestions personnalisées.";
+  }
+  function recap() {
+    const el = document.getElementById("corecap"), finish = document.getElementById("co_finish").checked;
+    const date = document.getElementById("co_date").value;
+    const days = Array.from(document.querySelectorAll(".co_day:checked")).map(cb => JOURS[(+cb.value + 1) % 7]);
+    const r = riegel();
+    el.innerHTML =
+      "<li>🎯 <b>" + DISTN[distV()] + "</b>" + (date ? " le " + new Date(date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "") + "</li>" +
+      "<li>🥇 Objectif : <b>" + (finish ? "finir en beauté 🎉" : (document.getElementById("co_goal").value ? fmtT(tsec2(document.getElementById("co_goal").value)) : "— à définir")) + "</b>" + (r && !finish ? " (potentiel Riegel : " + fmtT(Math.round(r.pred)) + ")" : "") + "</li>" +
+      "<li>🗓️ <b>" + days.length + " jour" + (days.length > 1 ? "s" : "") + "/semaine</b> : " + days.join(", ") + "</li>" +
+      (document.getElementById("co_base").value ? "<li>📈 Volume actuel : ~" + document.getElementById("co_base").value + " km/sem</li>" : "") +
+      (document.getElementById("co_first").checked ? "<li>🌱 Première prépa : progression douce</li>" : "") +
+      (document.getElementById("co_nofrac").checked ? "<li>🐢 Sans fractionné : tempo à la place</li>" : "") +
+      (document.getElementById("co_injury").checked ? "<li>🩹 Retour de blessure : récupération renforcée</li>" : "") +
+      ((document.querySelector("input[name=co_renfo]:checked") || {}).value !== "non" ? "<li>💪 Renfo intégré au plan (modifiable plus tard dans ⚙️ Réglages)</li>" : "<li>🏃 Course seule, sans renfo</li>");
+  }
+  function show(i) {
+    cs = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((s, j) => s.classList.toggle("on", j === cs));
+    document.getElementById("coprogbar").style.width = Math.round((cs + 1) / steps.length * 100) + "%";
+    document.getElementById("coprogtxt").textContent = "Étape " + (cs + 1) + " / " + steps.length;
+    document.getElementById("coback").style.visibility = cs === 0 ? "hidden" : "visible";
+    document.getElementById("conext").textContent = cs === steps.length - 1 ? "🚀 Générer mon plan" : "Suivant →";
+    if (cs === 2) updPred();
+    if (cs === 3) updChips();
+    if (cs === steps.length - 1) recap();
+  }
+  document.getElementById("conext").addEventListener("click", () => {
+    if (cs === 1 && !document.getElementById("co_date").value) { alert("Indique la date de ta course."); return; }
+    if (cs === 2 && !document.getElementById("co_ref").value) { alert("Indique ton chrono de référence — même approximatif, c'est lui qui calibre tout le plan."); return; }
+    if (cs === 6) {
+      const n = document.querySelectorAll(".co_day:checked").length;
+      if (n < 2) { alert("Coche au moins 2 jours d'entraînement."); return; }
+      if (n > 6) { alert("Maximum 6 jours — le repos fait partie de l'entraînement !"); return; }
+    }
+    if (cs === steps.length - 1) { genPlan(); return; }
+    show(cs + 1);
+  });
+  document.getElementById("coback").addEventListener("click", () => show(cs - 1));
+  ["co_dist", "co_refdist"].forEach(nm => document.querySelectorAll("input[name=" + nm + "]").forEach(r => r.addEventListener("change", () => { updPred(); updChips(); })));
+  document.getElementById("co_ref").addEventListener("input", () => { updPred(); updChips(); });
+  [["gchip_prud", 1.03], ["gchip_eq", 1], ["gchip_amb", 0.95]].forEach(p => {
+    const b = document.getElementById(p[0]);
+    if (b) b.addEventListener("click", () => {
+      const r = riegel();
+      if (!r) { alert("D'abord ton chrono à l'étape précédente."); return; }
+      document.getElementById("co_finish").checked = false;
+      document.getElementById("co_goal").value = fmtClock(Math.round(r.pred * p[1]));
+      updChips();
+    });
+  });
+  show(0);
+})();
+
 function genPlan() {
   const dist = document.querySelector("input[name=co_dist]:checked").value;
   const raceS = document.getElementById("co_date").value;
@@ -1353,6 +1520,8 @@ function genPlan() {
   const injured = document.getElementById("co_injury").checked;
   const hrmax = +document.getElementById("co_hrmax").value || 0;
   const hrse = +document.getElementById("co_hrseuil").value || 0;
+  const baseKm = +document.getElementById("co_base").value || 0;
+  const wantRenfo = (document.querySelector("input[name=co_renfo]:checked") || {}).value !== "non";
   // jours disponibles + budgets
   const days = [];
   document.querySelectorAll("input.co_day").forEach(cb => {
@@ -1397,7 +1566,7 @@ function genPlan() {
   const dName = d => { const j = JOURS[(d.i + 1) % 7]; return j.charAt(0).toUpperCase() + j.slice(1); };
   const dSlot = d => "≤" + durStr(d.min);
   const SLD = { "10k": [45, 70], semi: [60, 100], mara: [75, 145] }[dist];
-  const slEnd = SLD[1] * (firstTimer ? 0.85 : 1);
+  const slEnd = SLD[1] * ((firstTimer || (baseKm > 0 && baseKm < 20)) ? 0.85 : 1);
   const kmOf = (min, pace) => Math.max(1, Math.round(min * 60 / pace));
   const out = [];
   for (let i = 0; i < N; i++) {
@@ -1479,6 +1648,7 @@ function genPlan() {
   if (!confirm("Je vais remplacer ton plan actuel par un plan " + DISTN[dist] + " de " + N + " semaines (objectif " + fmtT(goalS) + (warned ? " — ajusté à ton niveau réel" : "") + ").\nTes coches, carnets et courbes actuels seront effacés.\n\nContinuer ?")) return;
   state.plan = { weeks: out, raceDate: raceS, goalSec: goalS, refPace: Math.round(racePace), dist: dist, zones: z, createdAt: new Date().toISOString() };
   state.settings = state.settings || {};
+  state.settings.renfo = wantRenfo;
   if (hrse) state.settings.hrseuil = hrse;
   if (hrmax) state.settings.hrmax = hrmax;
   delete state.settings.goal; delete state.settings.date; // les réglages se réfèrent désormais au plan généré
@@ -1486,8 +1656,24 @@ function genPlan() {
   state.onboarded = true;
   save(); calcCurrent(); renderAll();
   const res = document.getElementById("coachresult");
+  // ---- analyse de cohérence (le "coach IA") ----
+  const totMin = days.reduce((a, d) => a + d.min, 0);
+  const needMin = { "10k": 90, semi: 150, mara: 240 }[dist];
+  let ana = "";
+  if (!justFinish) {
+    const ratio = goalS / predSec;
+    const ambTxt = ratio <= 0.97 ? "audacieux (" + Math.round((1 - ratio) * 100) + "% sous ton potentiel actuel — faisable si tu ne rates aucune séance)"
+      : ratio <= 1.05 ? "pile sur ton potentiel actuel : le choix le plus fiable 👌"
+      : "prudent (" + Math.round((ratio - 1) * 100) + "% de marge) — parfait pour une première";
+    ana += "🎯 Objectif " + ambTxt + ". ";
+  }
+  ana += totMin >= needMin
+    ? "📅 Ton budget de " + totMin + " min/semaine est confortable pour un " + DISTN[dist].toLowerCase() + "."
+    : "📅 Ton budget de " + totMin + " min/semaine est un peu juste pour un " + DISTN[dist].toLowerCase() + " (idéalement ≥ " + needMin + " min) — le plan en tire le maximum, en restant réaliste.";
+  if (baseKm) ana += " 📈 Tu pars de ~" + baseKm + " km/sem : le pic de la prépa approchera ~" + Math.round(baseKm * 1.6 + (dist === "mara" ? 15 : 8)) + " km/sem, montée progressive.";
   res.style.display = "";
   res.innerHTML = "<h3 class='sec'>✅ Ton plan est prêt !</h3>" +
+    "<p style='font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:10px;background:var(--card2);border-radius:12px;padding:11px 13px'>🤖 <b>Analyse de ta préparation :</b><br>" + ana + "</p>" +
     "<p style='font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:8px'>" + N + " semaines pour " + DISTN[dist] + " le " + race.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + " · objectif <b>" + fmtT(goalS) + "</b>" + (warned ? " — ajusté à ton niveau réel (ton chrono laisse présager " + fmtT(predSec) + ")" : "") + (truncated ? " · la course est plus loin : le plan couvre les 16 dernières semaines, roule librement avant" : "") + "</p>" +
     "<p style='font-size:.85rem;color:var(--text2);line-height:1.6'>Toutes tes allures sont calculées à partir de ton chrono : EF " + fmtP(z.ef1) + "-" + fmtP(z.ef2) + "/km · seuil " + fmtP(z.seuil) + "/km · allure " + DISTN[dist].toLowerCase() + " " + fmtP(z.race) + "/km. Va voir « Plan » et « Allures » — et retouche chaque séance avec ✏️ si besoin !</p>";
   document.getElementById("coachback").style.display = "";
@@ -1498,7 +1684,7 @@ document.getElementById("co_finish").addEventListener("change", function () { do
 document.getElementById("genbtn").addEventListener("click", genPlan);
 document.getElementById("skiplink").addEventListener("click", function () { state.onboarded = true; save(); go("home"); });
 document.getElementById("planreset").addEventListener("click", function () {
-  if (!confirm("Revenir au plan d'exemple (Semi 1h50 — 15 semaines) ? Tes coches, carnets et courbes seront effacés.")) return;
+  if (!confirm("Supprimer la prépa en cours ? Le plan d'exemple reviendra, et tes coches, carnets et courbes de cette prépa seront effacés.")) return;
   delete state.plan;
   state.status = {}; state.log = {}; state.edits = {}; state.notes = {}; state.deleted = {}; state.added = {};
   save(); calcCurrent(); renderAll(); go("plan");
@@ -1506,8 +1692,7 @@ document.getElementById("planreset").addEventListener("click", function () {
 (function () {
   if (state.plan) {
     document.getElementById("coachback").style.display = "";
-    document.getElementById("co_date").value = state.plan.raceDate;
-    const q = document.querySelector("input[name=co_dist][value='" + state.plan.dist + "']"); if (q) q.checked = true;
+    // pas de pré-remplissage : rien de personnel ne s'affiche dans l'assistant
   } else if (!state.onboarded && !Object.keys(state.status || {}).length) {
     // premier arrivant sur la page vierge → on l'envoie UNE SEULE FOIS vers l'assistant
     state.onboarded = true; save();
