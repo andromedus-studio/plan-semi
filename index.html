@@ -1582,10 +1582,11 @@ function genPlan() {
   const pHR = v => hrse ? ", FC ≈ <span class='hr'>" + Math.round(v * hrse / 165) + "</span>" : "";
   const raceMon = new Date(race); raceMon.setDate(raceMon.getDate() - ((race.getDay() + 6) % 7));
   const today = new Date(); today.setHours(12, 0, 0, 0);
-  const avail = Math.round((raceMon - today) / 604800000);
-  if (avail < 6) { alert("Ta course est dans moins de 6 semaines — trop court pour construire un plan complet. Passe me voir pour une mini-prépa !"); return; }
-  let N = (weeksSel === "auto") ? Math.min(avail, 16) : Math.min(+weeksSel, avail);
-  const truncated = N < avail;
+  const thisMon = new Date(today); thisMon.setDate(thisMon.getDate() - ((today.getDay() + 6) % 7)); // lundi de la semaine en cours
+  const maxN = Math.round((raceMon - thisMon) / 604800000) + 1;                                // semaines disponibles en comptant la semaine en cours
+  if (maxN < 6) { alert("Ta course est dans moins de 6 semaines — trop court pour construire un plan complet. Passe me voir pour une mini-prépa !"); return; }
+  let N = (weeksSel === "auto") ? Math.min(maxN, 16) : Math.min(+weeksSel, maxN);
+  const truncated = N < maxN;
   const c1 = Math.round(N / 3), c2 = Math.round(2 * N / 3);
   // ---- choix du nombre de sorties et des meilleurs jours (le coach décide) ----
   const ambitiousGoal = goalS > 0 && goalS <= predSec * 0.97;
