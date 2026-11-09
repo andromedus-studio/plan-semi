@@ -878,6 +878,19 @@ function weeks() {
     const extra = (state.added[i] || []).map(s => Object.assign({}, s, { added: true }));
     const kept = w.sessions.map((s, si) => ({ s, si })).filter(o => !(state.deleted[i] || []).includes(o.si)).map(o => o.s);
     let sessions = kept.concat(extra, renfoOn ? renfoSessions(w) : []).map((s, si) => Object.assign({}, s, { _si: si }));
+    // retouches ✏️ (jour, créneau, nom, km, détails) appliquées à la volée
+    const ek0 = i + "_";
+    sessions = sessions.map(s => {
+      const e = state.edits[ek0 + s._si];
+      if (!e) return s;
+      const o = Object.assign({}, s);
+      if (e.name) o.name = e.name;
+      if (e.day) o.day = e.day;
+      if (e.slot) o.slot = e.slot;
+      if (e.km !== undefined && e.km !== "") o.km = e.km;
+      if (e.det) o.det = String(e.det).split("\\n");
+      return o;
+    });
     const ord = state.order[i];
     sessions.sort((a, b) => {
       const ka = ord ? ord.indexOf(a._si) : -1, kb = ord ? ord.indexOf(b._si) : -1;
@@ -1094,11 +1107,16 @@ function openEditor(k) {
   const s = ws.find(x => x.idx === wi).sessions.find(x => x._si === si);
   const edit = state.edits[k] || {};
   const esc = v => String(v || "").replace(/'/g, "&#39;");
+  const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+  const curDay = edit.day || s.day;
+  const dayOpts = DAYS.map(d => "<option value='" + d + "'" + (d === curDay ? " selected" : "") + ">" + d + "</option>").join("");
   ed.innerHTML =
     "<div class='row2'><input id='en_" + k + "' placeholder='Nom' value='" + esc(edit.name || s.name) + "'>" +
-    "<input id='eday_" + k + "' placeholder='Jour' value='" + esc(edit.day || s.day) + "'></div>" +
-    "<div class='row2'><input id='eslot_" + k + "' placeholder='Créneau' value='" + esc(edit.slot || s.slot) + "'>" +
+    "<select id='eday_" + k + "' style='width:100%'>" + dayOpts + "</select></div>" +
+    "<div class='row2'><input id='eslot_" + k + "' list='slotlist_" + k + "' placeholder='Créneau (ex : Midi ≤1h)' value='" + esc(edit.slot || s.slot) + "'>" +
+    "<datalist id='slotlist_" + k + "'><option>Midi ≤1h</option><option>Midi ≤1h15</option><option>Soir ≤1h</option><option>Soir ≤1h15</option><option>Matin</option><option>Week-end</option></datalist>" +
     "<input id='ekm_" + k + "' placeholder='Km prévus' value='" + esc(edit.km || s.km) + "'></div>" +
+    "<p style='font-size:.74rem;color:var(--faint);margin:2px 0 6px'>💡 Change le jour ou le créneau d'une séance sans toucher au reste de la prépa (ex : fractionné du soir au midi). La semaine se réordonne toute seule.</p>" +
     "<textarea id='edet_" + k + "' placeholder='Détails'>" + esc(edit.det || (s.det || []).join("\n")) + "</textarea>" +
     "<div style='display:flex;gap:8px'><button class='btn green' id='esave_" + k + "'>💾 Enregistrer</button><button class='btn gray' id='ecancel_" + k + "'>Annuler</button></div>";
   document.getElementById("esave_" + k).addEventListener("click", function () {
