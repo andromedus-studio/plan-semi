@@ -63,6 +63,58 @@
     --input:#ffffff; --track:#f3d4ee; --navbg:#ffffff; --hover:#c4b5fd;
     --glow:0 0 22px rgba(236,72,153,.12);
   }
+  html[data-theme="cyberpunk"] {
+    --bg1:#090319; --bg2:#1a0533; --card:#150735; --card2:#0e0426; --border:rgba(0,240,255,.45);
+    --text:#e8f9ff; --text2:#b8c7ff; --muted:#8f7bd8; --faint:#6a55a8;
+    --input:#0e0426; --track:#2a1155; --navbg:#12042e; --hover:#00f0ff;
+    --glow:0 0 24px rgba(0,240,255,.14);
+  }
+  html[data-theme="strava"] {
+    --bg1:#f7f7f9; --bg2:#ffffff; --card:#ffffff; --card2:#fdf3ef; --border:#f7c8ae;
+    --text:#24252d; --text2:#3d3f4b; --muted:#767a8a; --faint:#9b9fab;
+    --input:#ffffff; --track:#e9e9ee; --navbg:#ffffff; --hover:#fc4c02;
+    --glow:0 0 20px rgba(252,76,2,.1);
+  }
+  html[data-theme="strava"] .card { box-shadow: 0 6px 20px rgba(36,37,45,.07), 0 1px 4px rgba(36,37,45,.05); }
+  html[data-theme="strava"] .session, html[data-theme="strava"] .stat, html[data-theme="strava"] .nextsession, html[data-theme="strava"] .wbtn { box-shadow: 0 2px 8px rgba(36,37,45,.07); }
+  html[data-theme="cyberpunk"] .card { box-shadow: var(--glow); }
+  html[data-theme="cyberpunk"] .nb.on { box-shadow: 0 0 12px rgba(0,240,255,.55); }
+  html[data-theme="strava"] .nb.on { box-shadow: 0 0 12px rgba(252,76,2,.35); }
+  html[data-theme="cyberpunk"] body { background: radial-gradient(700px 420px at 20% -10%, rgba(0,240,255,.13), transparent), radial-gradient(700px 460px at 85% 110%, rgba(255,0,153,.12), transparent), linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 100%); }
+  /* Cadres néon : halo cyan autour de chaque carte, lueur magenta en interne */
+  html[data-theme="cyberpunk"] .card { border: 1px solid rgba(0,240,255,.5); box-shadow: 0 0 0 1px rgba(0,240,255,.14), 0 0 20px rgba(0,240,255,.16), 0 0 44px rgba(255,0,153,.07), inset 0 0 26px rgba(255,0,153,.04); }
+  html[data-theme="cyberpunk"] .session, html[data-theme="cyberpunk"] .stat, html[data-theme="cyberpunk"] .nextsession, html[data-theme="cyberpunk"] .wbtn { border: 1px solid rgba(0,240,255,.35); box-shadow: 0 0 12px rgba(0,240,255,.1); }
+  html[data-theme="cyberpunk"] .nb { border: 1px solid rgba(0,240,255,.3); }
+  html[data-theme="cyberpunk"] .countpill { border: 1px solid rgba(255,0,153,.5); box-shadow: 0 0 18px rgba(255,0,153,.25); }
+  html[data-theme="cyberpunk"] input, html[data-theme="cyberpunk"] select, html[data-theme="cyberpunk"] textarea { border-color: rgba(0,240,255,.35) !important; }
+  /* Cadres orange Strava */
+  html[data-theme="strava"] .card { border: 1px solid rgba(252,76,2,.55); }
+  html[data-theme="strava"] .session, html[data-theme="strava"] .stat, html[data-theme="strava"] .nextsession, html[data-theme="strava"] .wbtn { border: 1px solid rgba(252,76,2,.3); }
+  html[data-theme="strava"] .nb { border: 1px solid rgba(252,76,2,.35); }
+  html[data-theme="strava"] input, html[data-theme="strava"] select, html[data-theme="strava"] textarea { border-color: rgba(252,76,2,.4) !important; }
+  /* Cyberpunk poussé : néon sur boutons, nav, hero */
+  html[data-theme="cyberpunk"] .btn { border: 1px solid rgba(0,240,255,.3); }
+  html[data-theme="cyberpunk"] .btn.green { background: linear-gradient(90deg,#00f0ff,#ff0099); color: #0d0221; font-weight: 800; border: none; box-shadow: 0 0 16px rgba(0,240,255,.4); }
+  html[data-theme="cyberpunk"] .btn.gray { background: #14052e; color: #b8c7ff; border: 1px solid #3b1d6e; }
+  html[data-theme="cyberpunk"] .btn.red { background: linear-gradient(90deg,#ff0099,#ff2d55); box-shadow: 0 0 14px rgba(255,0,153,.35); }
+  html[data-theme="cyberpunk"] .nb { border: 1px solid #2a1155; }
+  html[data-theme="cyberpunk"] .nb.on { background: linear-gradient(135deg, rgba(0,240,255,.16), rgba(255,0,153,.16)); border-color: #00f0ff; color: #00f0ff; text-shadow: 0 0 8px rgba(0,240,255,.8); }
+  html[data-theme="cyberpunk"] .nbplan { background: linear-gradient(135deg,#00f0ff,#ff0099) !important; color: #0d0221 !important; box-shadow: 0 6px 18px rgba(255,0,153,.45), 0 0 12px rgba(0,240,255,.35); }
+  html[data-theme="cyberpunk"] .card { border-color: rgba(0,240,255,.22); }
+  html[data-theme="cyberpunk"] .hero { background: radial-gradient(480px 220px at 50% -25%, rgba(0,240,255,.14), transparent 70%), radial-gradient(340px 180px at 90% 110%, rgba(255,0,153,.12), transparent 70%), var(--card); border-color: rgba(255,0,153,.35); box-shadow: 0 14px 36px rgba(0,0,0,.45), inset 0 0 50px rgba(0,240,255,.05); }
+  html[data-theme="cyberpunk"] .hero h1 { background: linear-gradient(90deg,#00f0ff,#ff0099); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 12px rgba(0,240,255,.35)); }
+  html[data-theme="cyberpunk"] .countbig { background: linear-gradient(90deg,#00f0ff,#ff0099); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 6px 16px rgba(255,0,153,.4)); }
+  html[data-theme="cyberpunk"] .countpill { border: 1px solid rgba(255,0,153,.45); box-shadow: 0 0 18px rgba(255,0,153,.2); }
+  /* Strava poussé : orange signature partout où ça compte */
+  html[data-theme="strava"] .btn.green { background: linear-gradient(90deg,#e04300,#fc4c02); }
+  html[data-theme="strava"] .btn.gray { background: #f2f2f5; color: #3d3f4b; border: 1px solid #e6e6eb; }
+  html[data-theme="strava"] .nb { background: #ffffff; border: 1px solid #e6e6eb; color: #767a8a; }
+  html[data-theme="strava"] .nb.on { color: #fc4c02; border-color: #fc4c02; }
+  html[data-theme="strava"] .nbplan { background: linear-gradient(135deg,#fc4c02,#ff7a45) !important; color: #fff !important; box-shadow: 0 6px 18px rgba(252,76,2,.35); }
+  html[data-theme="strava"] .hero { background: radial-gradient(480px 220px at 50% -25%, rgba(252,76,2,.09), transparent 70%), #ffffff; border-color: #f0d9cd; box-shadow: 0 14px 36px rgba(36,37,45,.08), inset 0 1px 0 rgba(255,255,255,.6); }
+  html[data-theme="strava"] .countbig { background: linear-gradient(90deg,#fc4c02,#ff7a45); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 6px 16px rgba(252,76,2,.25)); }
+  html[data-theme="strava"] .countpill { border: 1px solid #f0d9cd; }
+  html[data-theme="strava"] .phase { color: #fc4c02; }
   html[data-theme="ocean"] .card, html[data-theme="lava"] .card, html[data-theme="neon"] .card, html[data-theme="candy"] .card { box-shadow: var(--glow); }
   html[data-theme="neon"] .nb.on { box-shadow: 0 0 12px rgba(147,197,253,.5); }
   html[data-theme="lava"] .nb.on { box-shadow: 0 0 12px rgba(249,115,22,.5); }
@@ -695,6 +747,8 @@ const THEMES = [
   { id: "lava", label: "🌋 Lave", bg: "linear-gradient(135deg,#190808,#f97316)" },
   { id: "neon", label: "💜 Néon", bg: "linear-gradient(135deg,#05070f,#7c3aed,#38bdf8)" },
   { id: "candy", label: "🍬 Bonbon", bg: "linear-gradient(135deg,#fde7f1,#dbeafe)" },
+  { id: "cyberpunk", label: "🌆 Cyberpunk", bg: "linear-gradient(135deg,#0d0221,#3b1d6e,#00f0ff)" },
+  { id: "strava", label: "🟠 Strava", bg: "linear-gradient(135deg,#ffffff,#fc4c02)" },
 ];
 let theme = "dark";
 try { theme = localStorage.getItem("planSemiTheme") || "dark"; } catch (e) {}
@@ -1244,6 +1298,8 @@ function trkSvg(r, type) {
       (zst ? " · <b style='color:" + zoneColor(zst.pct) + "'>" + zst.pct + "% du temps dedans</b>" : "") + "</div>" +
       "<svg viewBox='0 0 560 150' style='width:100%;height:auto;background:var(--card2);border-radius:10px'>" + axis + grid + band +
       "<line x1='" + pL + "' y1='" + sy + "' x2='" + (W - pR) + "' y2='" + sy + "' stroke='#e5484d' stroke-dasharray='2 4' opacity='.35'/>" +
+      "<line x1='" + pL + "' y1='" + yH(hrAvg) + "' x2='" + (W - pR) + "' y2='" + yH(hrAvg) + "' stroke='#fbbf24' stroke-dasharray='7 5' stroke-width='1.6' opacity='.85'/>" +
+      "<text x='" + (W - pR) + "' y='" + (+yH(hrAvg) - 4) + "' font-size='9' fill='#fbbf24' text-anchor='end'>moy " + hrAvg + "</text>" +
       "<polyline fill='none' stroke='#e5484d' stroke-width='1.8' points='" + pts + "'/></svg></div>";
   }
   // --- Allure lissée : échelle adaptée + fourchette cible du plan en bande verte ---
@@ -1278,6 +1334,8 @@ function trkSvg(r, type) {
     pacePart = "<div><div style='font-size:.72rem;color:var(--faint);margin-bottom:2px'>⚡ Allure lissée" + (avgP ? " · moyenne " + fmtP(avgP) + "/km" : "") +
       (target ? " · <span style='color:#4ade80'>bande verte = cible " + fmtP(target[0]) + "-" + fmtP(target[1]) + "/km</span>" : "") + " · vite en haut</div>" +
       "<svg viewBox='0 0 560 150' style='width:100%;height:auto;background:var(--card2);border-radius:10px'>" + axis + grid + band +
+      (avgP ? "<line x1='" + pL + "' y1='" + yP(avgP) + "' x2='" + (W - pR) + "' y2='" + yP(avgP) + "' stroke='#fbbf24' stroke-dasharray='7 5' stroke-width='1.6' opacity='.85'/>" +
+        "<text x='" + (W - pR) + "' y='" + (+yP(avgP) - 4) + "' font-size='9' fill='#fbbf24' text-anchor='end'>moy " + fmtP(avgP) + "</text>" : "") +
       "<polyline fill='none' stroke='#46a758' stroke-width='1.8' points='" + pts + "'/></svg></div>";
   }
   return "<div style='display:grid;gap:10px'>" + hrPart + pacePart + "</div>";
