@@ -4,7 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>🏃 Plan Running</title>
+<title>🏃 Plan Running — ton coach de poche</title>
+<meta name="description" content="Crée ta prépa sur mesure : 10 km, semi ou marathon. Allures calculées d'après ton chrono, renfo, stats, plan 100% personnalisé.">
+<meta property="og:title" content="🏃 Plan Running — ton coach de poche">
+<meta property="og:description" content="Prépa 10 km, semi ou marathon sur mesure : tes allures, tes jours, ta date de course. Gratuit, sans compte.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏃%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1220'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E🏃%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Plan Running">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
   :root {
     font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -233,6 +243,20 @@
   .nb.glowcoach { border-radius: 12px; animation: navGlow 2.4s ease-in-out infinite; }
   @keyframes navGlow { 0%, 100% { box-shadow: 0 0 8px rgba(59,130,246,.3); color: #93c5fd; } 50% { box-shadow: 0 0 22px rgba(59,130,246,.75); color: #bfdbfe; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  /* ---- Finitions pro : transitions & relief ---- */
+  .view.on { animation: viewIn .28s cubic-bezier(.22,.8,.36,1); }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  h1, h2, .sec, .sname { letter-spacing: -.015em; }
+  .stat .v, .countbig, .weekmeta b { font-variant-numeric: tabular-nums; }
+  .card, .btn, .session, .nb { transition: box-shadow .25s ease, transform .18s ease, background .2s ease, border-color .2s ease, color .2s ease; }
+  .btn:active { transform: scale(.96); }
+  @media (hover: hover) {
+    .btn:hover { transform: translateY(-1px); }
+    .card:hover { transform: translateY(-2px); }
+    .session:hover { transform: translateX(2px); }
+  }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--hover); outline-offset: 2px; }
+  .nb.on { transform: translateY(-2px); }
   @media print {
     body { background: #fff !important; color: #000; padding: 0; max-width: none; }
     nav.bottom, footer, .view { display: none !important; }
@@ -576,6 +600,7 @@
       <button class="btn green" id="exportbtn">⬇️ Exporter ma sauvegarde</button>
       <button class="btn" id="importbtn">⬆️ Importer une sauvegarde</button>
       <button class="btn red" id="wipebtn">🗑 Tout effacer</button>
+      <button class="btn green" id="installbtn" style="display:none">📲 Installer l'app (écran d'accueil)</button>
     </div>
     <input type="file" id="importfile" accept=".json" class="hide">
     <input type="file" id="actfile" class="hide">
@@ -1753,6 +1778,21 @@ function genPlan() {
   });
 }
 
+// ---- PWA : installation + hors-ligne (nécessite manifest.webmanifest et sw.js à côté d'index.html) ----
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+(function () {
+  let deferred = null;
+  const b = document.getElementById("installbtn");
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; if (b) b.style.display = ""; });
+  if (b) b.addEventListener("click", () => {
+    if (!deferred) { alert("Sur iPhone : ouvre Safari → bouton Partager → « Sur l'écran d'accueil ».\nSur Android : menu ⋮ → « Installer l'application » ou « Ajouter à l'écran d'accueil »."); return; }
+    deferred.prompt();
+    deferred.userChoice.then(() => { deferred = null; b.style.display = "none"; });
+  });
+  window.addEventListener("appinstalled", () => { if (b) b.style.display = "none"; });
+})();
 document.getElementById("co_finish").addEventListener("change", function () { document.getElementById("co_goal").disabled = this.checked; });
 document.getElementById("genbtn").addEventListener("click", genPlan);
 document.getElementById("planreset").addEventListener("click", function () {
