@@ -803,8 +803,8 @@ function goalDelta() {
 }
 function hrmaxV() { return (state.settings && +state.settings.hrmax) || 187; }
 function hrPct(p) { return Math.round(p * hrmaxV() / 100); }
-function zoneOf(type) { const lo = { ef: 60, sl: 0, qual: 80, frac: 85, race: 80 }[type] || 60, hi = { ef: 75, sl: 75, qual: 92, frac: 105, race: 95 }[type] || 75; return [lo, hi]; }
-function zoneName(type) { return { ef: "EF 60-75% FCM", sl: "endurance ≤ 75% FCM", qual: "tempo 80-92% FCM", frac: "fractionné ≥ 85% FCM", race: "course 80-95% FCM" }[type] || "EF"; }
+function zoneOf(type) { const lo = { ef: 60, sl: 60, qual: 80, frac: 85, race: 80 }[type] || 60, hi = { ef: 75, sl: 75, qual: 92, frac: 105, race: 95 }[type] || 75; return [lo, hi]; }
+function zoneName(type) { return { ef: "EF 60-75% FCM", sl: "endurance 60-75% FCM (comme l'EF, en plus long)", qual: "tempo 80-92% FCM", frac: "fractionné ≥ 85% FCM", race: "course 80-95% FCM" }[type] || "EF"; }
 function zoneStats(type, trk) {
   const p = zoneOf(type), lo = hrPct(p[0]), hi = hrPct(p[1]);
   let inT = 0, tot = 0;
@@ -818,7 +818,7 @@ function zoneColor(v) { return v >= 80 ? "#4ade80" : v >= 60 ? "#fbbf24" : "#f87
 function hrZones(t) {
   return String(t)
     .replace(/\{EF\}/g, "60-75% de FC max (<span class='hr'>" + hrPct(60) + "-" + hrPct(75) + " bpm</span>)")
-    .replace(/\{SL\}/g, "≤ 75% de FC max (<span class='hr'>" + hrPct(75) + " bpm</span>)")
+    .replace(/\{SL\}/g, "60-75% de FC max (<span class='hr'>" + hrPct(60) + "-" + hrPct(75) + " bpm</span>) — comme l'EF, en plus long")
     .replace(/\{R\}/g, "≤ 60% de FC max (<span class='hr'>" + hrPct(60) + " bpm</span>)");
 }
 function adjPace(t) { const d = goalDelta(); let s = String(t); if (d) s = s.replace(/(\d{1,2})'(\d{2})/g, (m, a, b) => fmtP(Math.max(150, +a * 60 + (+b) + d))); return hrZones(s); }
