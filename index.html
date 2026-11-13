@@ -1751,10 +1751,11 @@ function genPlan() {
     ef1: Math.round(pace10 * 1.13), ef2: Math.round(pace10 * 1.27),
     seuil: Math.round(pace10 * 1.02),
     frac: Math.round(pace10 * 0.88), k1: Math.round(pace10 * 0.95),
-    sl1: Math.round(pace10 * 1.16), sl2: Math.round(pace10 * 1.31),
+    sl1: Math.round(pace10 * 1.18), sl2: Math.round(pace10 * 1.42),
     race: Math.round(racePace), predSec: Math.round(predSec), hrmax: hrmax, hrse: hrse
   };
   const pS = v => "<span class='pace'>" + fmtP(v) + "/km</span>";
+  const pBand = (a, b) => "<span class='pace'>" + fmtP(a) + "-" + fmtP(b) + "/km</span>";
   const pR = v => "<span class='pace'>" + fmtP(v) + "-" + fmtP(v + 12) + "/km</span>";
   const pHR = v => hrse ? ", FC ≈ <span class='hr'>" + Math.round(v * hrse / 165) + "</span>" : "";
   const raceMon = new Date(race); raceMon.setDate(raceMon.getDate() - ((race.getDay() + 6) % 7));
@@ -1829,8 +1830,8 @@ function genPlan() {
       title = "Semaine " + w + " — Allégée";
       goal = "Semaine facile : le corps assimile le travail des semaines passées";
       sessions.push(W(dName(qD), dSlot(qD), "qual", "Tempo court 15'", durStr(Math.min(40, qD.min)), "5", ["15' échauffement", "15' à " + pS(z.seuil + 8) + pHR(152), "10' retour au calme"]));
-      efDs.forEach(d => { const du = Math.min(efMid, d.min); if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing tranquille à " + pR(z.ef1)])); });
-      sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur), durStr(slDur), String(kmOf(slDur, z.sl1)), [durStr(slDur) + " à " + pR(z.sl1)]));
+      efDs.forEach(d => { const du = Math.min(efMid, d.min); if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing tranquille à " + pBand(z.ef1, z.ef2)])); });
+      sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur), durStr(slDur), String(kmOf(slDur, z.sl1)), [durStr(slDur) + " à " + pBand(z.sl1, z.sl2)]));
     } else {
       const isBase = w <= c1, isDev = !isBase && w <= c2;
       phase = isBase ? "Bloc 1 · Base endurance" : isDev ? "Bloc 2 · Développement" : "Bloc 3 · Spécifique";
@@ -1863,10 +1864,10 @@ function genPlan() {
       efDs.forEach(d => {
         const du = Math.min(efMid, d.min);
         if (d === tempoD && !isBase && du >= 50) sessions.push(W(dName(d), dSlot(d), "qual", "Tempo 20'", durStr(Math.min(du, 50)), String(kmOf(40, z.seuil)), ["10' échauffement", "20' à " + pS(z.seuil + 6) + pHR(162), "10' retour au calme"]));
-        else if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing à " + pR(z.ef1) + " — sensation : pouvoir parler en courant"]));
+        else if (du >= 25) sessions.push(W(dName(d), dSlot(d), "ef", "EF " + durStr(du), durStr(du), String(kmOf(du, z.ef1)), ["Footing à " + pBand(z.ef1, z.ef2) + " — sensation : pouvoir parler en courant"]));
       });
       // sortie longue
-      let slDet = [durStr(slDur) + " à " + pR(z.sl1)];
+      let slDet = [durStr(slDur) + " à " + pBand(z.sl1, z.sl2)];
       if (!isBase && slDur >= 70) slDet = [durStr(slDur) + " dont " + (dist === "mara" ? "2×20'" : "2×15'") + " à " + pS(dist === "mara" ? z.race : z.race + 2) + pHR(158)];
       sessions.push(W(dName(slD), dSlot(slD), "sl", "Sortie longue " + durStr(slDur), durStr(slDur), String(kmOf(slDur, z.sl1)), slDet));
     }
