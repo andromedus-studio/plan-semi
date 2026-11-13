@@ -712,6 +712,22 @@ function normState() { ["status","log","edits","notes","deleted","added","order"
 normState();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
+// ---- Migration des zones : élargit la fourchette sortie longue des plans générés avant la correction ----
+function migrateZones() {
+  const p = state.plan;
+  if (!p || !p.zones || (p.zv || 0) >= 2) return;
+  const pace10 = Math.round(p.zones.ef1 / 1.13);
+  p.zones.sl1 = Math.round(pace10 * 1.18);
+  p.zones.sl2 = Math.round(pace10 * 1.42);
+  p.zv = 2;
+  (p.weeks || []).forEach(w => (w.sessions || []).forEach(s => {
+    if (s.type !== "sl" || !s.det) return;
+    s.det = s.det.map(d => String(d).replace(/\d{1,2}'\d{2}-\d{1,2}'\d{2}\/km/, fmtP(p.zones.sl1) + "-" + fmtP(p.zones.sl2) + "/km"));
+  }));
+  save();
+}
+migrateZones();
+
 // ---- Messages maison (alert/confirm natifs sont bloqués dans les aperçus intégrés) ----
 function ovlBox(inner) {
   let o = document.getElementById("uiOvl");
