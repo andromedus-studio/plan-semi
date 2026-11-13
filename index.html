@@ -174,6 +174,20 @@
   .session.t-ef::before { --accent: #22c55e; } .session.t-qual::before { --accent: #fb923c; }
   .session.t-sl::before { --accent: #818cf8; } .session.t-frac::before { --accent: #facc15; }
   .session.t-race::before { --accent: #ef4444; } .session.t-renfo::before { --accent: #a3e635; }
+  /* ---- Design : typo sportive, dégradés d'intensité, halo du jour, tracés animés ---- */
+  .vhead h1, .weekheader h2 { text-transform: uppercase; font-style: italic; letter-spacing: .05em; }
+  .sec { text-transform: uppercase; letter-spacing: .07em; font-size: .8rem; }
+  .stat .v, .countbig { font-style: italic; }
+  .session.t-ef::before { background: linear-gradient(180deg,#4ade80,#15803d); box-shadow: 0 0 10px #22c55e88; }
+  .session.t-qual::before { background: linear-gradient(180deg,#fdba74,#c2410c); box-shadow: 0 0 10px #fb923c88; }
+  .session.t-sl::before { background: linear-gradient(180deg,#a5b4fc,#4f46e5); box-shadow: 0 0 10px #818cf888; }
+  .session.t-frac::before { background: linear-gradient(180deg,#fde047,#ca8a04); box-shadow: 0 0 10px #facc1588; }
+  .session.t-race::before { background: linear-gradient(180deg,#f87171,#991b1b); box-shadow: 0 0 10px #ef444488; }
+  .session.t-renfo::before { background: linear-gradient(180deg,#d9f99d,#4d7c0f); box-shadow: 0 0 10px #a3e63588; }
+  .session.today { border-color: #f59e0b88; animation: pulseToday 2.6s ease-in-out infinite; }
+  @keyframes pulseToday { 0%,100% { box-shadow: 0 0 0 1px #f59e0b44, 0 0 12px rgba(245,158,11,.16), 0 4px 14px rgba(0,0,0,.24); } 50% { box-shadow: 0 0 0 1px #f59e0b66, 0 0 22px rgba(245,158,11,.32), 0 4px 14px rgba(0,0,0,.24); } }
+  .drawline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawline 1.6s ease-out forwards; }
+  @keyframes drawline { to { stroke-dashoffset: 0; } }
   .session.dragging { outline: 2px dashed #60a5fa; outline-offset: 3px; opacity: .82; cursor: grabbing !important; }
   @media (hover:hover) {
     .session:hover { border-color: var(--hover); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.32), 0 3px 8px rgba(0,0,0,.2); }
@@ -1127,7 +1141,8 @@ function renderWeek() {
     const k = w.idx + "_" + s._si, st = state.status[k] || "", log = state.log[k] || {};
     const tagmap = { ef: ["EF", "ef"], qual: ["Qualité", "qual"], sl: ["Sortie longue", "sl"], frac: ["Fractionné", "frac"], race: ["COURSE", "race"], renfo: ["Renfo", "renfo"] };
     const tag = tagmap[s.type] || ["EF", "ef"];
-    html += "<div class='session t-" + (s.type || "ef") + " " + (st === "done" ? "done" : st === "missed" ? "missed" : "") + "' data-si='" + s._si + "'>";
+    const isToday = w.idx === current && s.day === (JOURS[new Date().getDay()].replace(/^./, c => c.toUpperCase()));
+    html += "<div class='session t-" + (s.type || "ef") + " " + (st === "done" ? "done" : st === "missed" ? "missed" : "") + (isToday ? " today" : "") + "' data-si='" + s._si + "'>";
     html += "<div class='shead'><div style='flex:1'>";
     html += "<div class='sname' data-dk='" + k + "'>" + adjPace(s.name) + "</div>";
     html += "<div class='tags'><span class='tag day'>" + s.day + "</span><span class='tag slot'>" + s.slot + " · " + s.dur + "</span><span class='tag " + tag[1] + "'>" + tag[0] + "</span><span class='tag slot'>" + kmNum(s) + " km</span>" + (st === "done" && log.km ? "<span class='tag real'>▶ " + log.km + " km réels</span>" : "") + (st === "missed" ? "<span class='tag race'>manquée</span>" : "") + "</div>";
@@ -1360,7 +1375,7 @@ function trkSvg(r, type) {
       "<line x1='" + pL + "' y1='" + sy + "' x2='" + (W - pR) + "' y2='" + sy + "' stroke='#e5484d' stroke-dasharray='2 4' opacity='.35'/>" +
       "<line x1='" + pL + "' y1='" + yH(hrAvg) + "' x2='" + (W - pR) + "' y2='" + yH(hrAvg) + "' stroke='#fbbf24' stroke-dasharray='7 5' stroke-width='1.6' opacity='.85'/>" +
       "<text x='" + (W - pR) + "' y='" + (+yH(hrAvg) - 4) + "' font-size='9' fill='#fbbf24' text-anchor='end'>" + hrAvgLbl + "</text>" +
-      "<polyline fill='none' stroke='#e5484d' stroke-width='1.8' points='" + pts + "'/></svg></div>";
+      "<polyline pathLength='1' class='drawline' fill='none' stroke='#e5484d' stroke-width='1.8' points='" + pts + "'/></svg></div>";
   }
   // --- Allure lissée : échelle adaptée + fourchette cible du plan en bande verte ---
   const P = [];
@@ -1398,7 +1413,7 @@ function trkSvg(r, type) {
       "<svg viewBox='0 0 560 150' style='width:100%;height:auto;background:var(--card2);border-radius:10px'>" + axis + grid + band +
       (avgP ? "<line x1='" + pL + "' y1='" + yP(avgP) + "' x2='" + (W - pR) + "' y2='" + yP(avgP) + "' stroke='#fbbf24' stroke-dasharray='7 5' stroke-width='1.6' opacity='.85'/>" +
         "<text x='" + (W - pR) + "' y='" + (+yP(avgP) - 4) + "' font-size='9' fill='#fbbf24' text-anchor='end'>" + avgLbl + "</text>" : "") +
-      "<polyline fill='none' stroke='#46a758' stroke-width='1.8' points='" + pts + "'/></svg></div>";
+      "<polyline pathLength='1' class='drawline' fill='none' stroke='#46a758' stroke-width='1.8' points='" + pts + "'/></svg></div>";
   }
   return "<div style='display:grid;gap:10px'>" + hrPart + pacePart + "</div>";
 }
