@@ -1136,6 +1136,7 @@ function renderWeek() {
   html += "<div class='phase' style='color:" + w.color + "'><span class='dot' style='background:" + w.color + "'></span>" + w.phase + "</div>";
   html += "<div class='weekheader'><h2>" + w.title + "</h2><span style='color:var(--muted);font-size:.8rem'>📅 " + w.dates + "</span></div>";
   html += "<div class='weekmeta'>Objectif : " + w.goal + " · Prévu : <b style='color:var(--text)'>" + plan + " km</b> · Réel : <b style='color:#4ade80'>" + real + " km</b></div>";
+  html += "<div style='font-size:.72rem;color:var(--faint);margin:-6px 0 10px'>💡 Appui long (0,6 s) sur une séance puis glisse pour la déplacer — ou flèches ⬆⬇ dans les actions.</div>";
   if (w.light) html += "<div class='note'>⬇ Semaine allégée : volume réduit pour récupérer — c'est ici que tu progresses vraiment.</div>";
   html += "<textarea class='weeknote' id='wnote' placeholder='📝 Notes de la semaine...'>" + (state.notes[w.idx] || "") + "</textarea>";
   w.sessions.forEach(s => {
@@ -1151,7 +1152,8 @@ function renderWeek() {
     html += "<div class='actions'>";
     html += "<button class='iconbtn ok " + (st === "done" ? "on" : "") + "' data-ok='" + k + "'>✅ Fait</button>";
     html += "<button class='iconbtn no " + (st === "missed" ? "on" : "") + "' data-no='" + k + "'>❌ Manquée</button>";
-    html += "<button class='iconbtn' data-ek='" + k + "'>✏️</button>";
+    html += "<button class='iconbtn' data-ek='" + k + "'>✏️</button>" +
+      "<button class='iconbtn' data-mup='" + k + "' title='Monter'>⬆</button><button class='iconbtn' data-mdn='" + k + "' title='Descendre'>⬇</button>";
     if (s.added) html += "<button class='iconbtn del' data-rk='" + k + "'>🗑</button>";
     html += "</div></div>";
     html += "<div class='det hide' id='d_" + k + "'>";
@@ -1203,6 +1205,18 @@ function wireWeek(w) {
     const k = el.dataset.no; state.status[k] = state.status[k] === "missed" ? "" : "missed"; save(); renderAll();
   }));
   document.querySelectorAll(".iconbtn[data-ek]").forEach(el => el.addEventListener("click", () => openEditor(el.dataset.ek)));
+  const moveS = (k, dir) => {
+    const wi = Number(k.split("_")[0]), si = Number(k.split("_")[1]);
+    const wv = document.getElementById("weekview");
+    if (!wv) return;
+    const ord = Array.from(wv.querySelectorAll(".session")).map(el => +el.dataset.si).filter(v => !isNaN(v));
+    const i = ord.indexOf(si), j = i + dir;
+    if (i < 0 || j < 0 || j >= ord.length) return;
+    ord.splice(j, 0, ord.splice(i, 1)[0]);
+    state.order[wi] = ord; save(); renderAll();
+  };
+  document.querySelectorAll(".iconbtn[data-mup]").forEach(el => el.addEventListener("click", () => moveS(el.dataset.mup, -1)));
+  document.querySelectorAll(".iconbtn[data-mdn]").forEach(el => el.addEventListener("click", () => moveS(el.dataset.mdn, 1)));
   document.querySelectorAll(".iconbtn[data-rk]").forEach(el => el.addEventListener("click", () => {
     const p = el.dataset.rk.split("_"); const wi = +p[0], si = +p[1];
     const baseLen = PLAN()[wi].sessions.length - (state.deleted[wi] || []).length;
@@ -1992,7 +2006,7 @@ document.getElementById("planreset").addEventListener("click", function () {
 fillSettingsForm();
 renderAll();
 
-// ---- Déplacer une séance : appui long 3 secondes puis glisser (délégué, une seule fois) ----
+// ---- Déplacer une séance : appui long 0,6 s puis glisser (délégué, une seule fois) ----
 (function () {
   const wrap = document.getElementById("weekview");
   if (!wrap || wrap.__drag) return;
@@ -2019,7 +2033,7 @@ renderAll();
       dragEl = el; el.classList.add("dragging");
       document.addEventListener("touchmove", stopScroll, { passive: false });
       try { if (navigator.vibrate) navigator.vibrate(50); } catch (err) {}
-    }, 3000);
+    }, 600);
   });
   wrap.addEventListener("pointermove", e => {
     if (!dragEl) {
