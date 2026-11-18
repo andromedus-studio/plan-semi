@@ -1257,6 +1257,7 @@ function openEditor(k) {
   const curDay = edit.day || s.day;
   const dayOpts = DAYS.map(d => "<option value='" + d + "'" + (d === curDay ? " selected" : "") + ">" + d + "</option>").join("");
   ed.innerHTML =
+    "<div style='display:flex;gap:8px;margin-bottom:10px'><button class='btn' style='flex:1' id='emup_" + k + "'>⬆ Monter</button><button class='btn' style='flex:1' id='emdn_" + k + "'>⬇ Descendre</button></div>" +
     "<div class='row2'><input id='en_" + k + "' placeholder='Nom' value='" + esc(edit.name || s.name) + "'>" +
     "<select id='eday_" + k + "' style='width:100%'>" + dayOpts + "</select></div>" +
     "<div class='row2'><input id='eslot_" + k + "' list='slotlist_" + k + "' placeholder='Créneau (ex : Midi ≤1h)' value='" + esc(edit.slot || s.slot) + "'>" +
@@ -1264,8 +1265,7 @@ function openEditor(k) {
     "<input id='ekm_" + k + "' placeholder='Km prévus' value='" + esc(edit.km || s.km) + "'></div>" +
     "<p style='font-size:.74rem;color:var(--faint);margin:2px 0 6px'>💡 Change le jour ou le créneau d'une séance sans toucher au reste de la prépa (ex : fractionné du soir au midi). La semaine se réordonne toute seule.</p>" +
     "<textarea id='edet_" + k + "' placeholder='Détails'>" + esc(edit.det || (s.det || []).join("\n")) + "</textarea>" +
-    "<div style='display:flex;gap:8px'><button class='btn gray' id='emup_" + k + "'>⬆ Monter</button><button class='btn gray' id='emdn_" + k + "'>⬇ Descendre</button></div>" +
-    "<div style='display:flex;gap:8px;margin-top:8px'><button class='btn green' id='esave_" + k + "'>💾 Enregistrer</button><button class='btn gray' id='ecancel_" + k + "'>Annuler</button></div>";
+    "<div style='display:flex;gap:8px'><button class='btn green' id='esave_" + k + "'>💾 Enregistrer</button><button class='btn gray' id='ecancel_" + k + "'>Annuler</button></div>";
   document.getElementById("esave_" + k).addEventListener("click", function () {
     const prev = state.edits[k] || {};
     const ws0 = weeks();
