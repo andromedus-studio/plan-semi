@@ -1152,8 +1152,7 @@ function renderWeek() {
     html += "<div class='actions'>";
     html += "<button class='iconbtn ok " + (st === "done" ? "on" : "") + "' data-ok='" + k + "'>✅ Fait</button>";
     html += "<button class='iconbtn no " + (st === "missed" ? "on" : "") + "' data-no='" + k + "'>❌ Manquée</button>";
-    html += "<button class='iconbtn' data-ek='" + k + "'>✏️</button>" +
-      "<button class='iconbtn' data-mup='" + k + "' title='Monter'>⬆</button><button class='iconbtn' data-mdn='" + k + "' title='Descendre'>⬇</button>";
+    html += "<button class='iconbtn' data-ek='" + k + "'>✏️</button>";
     if (s.added) html += "<button class='iconbtn del' data-rk='" + k + "'>🗑</button>";
     html += "</div></div>";
     html += "<div class='det hide' id='d_" + k + "'>";
@@ -1205,18 +1204,6 @@ function wireWeek(w) {
     const k = el.dataset.no; state.status[k] = state.status[k] === "missed" ? "" : "missed"; save(); renderAll();
   }));
   document.querySelectorAll(".iconbtn[data-ek]").forEach(el => el.addEventListener("click", () => openEditor(el.dataset.ek)));
-  const moveS = (k, dir) => {
-    const wi = Number(k.split("_")[0]), si = Number(k.split("_")[1]);
-    const wv = document.getElementById("weekview");
-    if (!wv) return;
-    const ord = Array.from(wv.querySelectorAll(".session")).map(el => +el.dataset.si).filter(v => !isNaN(v));
-    const i = ord.indexOf(si), j = i + dir;
-    if (i < 0 || j < 0 || j >= ord.length) return;
-    ord.splice(j, 0, ord.splice(i, 1)[0]);
-    state.order[wi] = ord; save(); renderAll();
-  };
-  document.querySelectorAll(".iconbtn[data-mup]").forEach(el => el.addEventListener("click", () => moveS(el.dataset.mup, -1)));
-  document.querySelectorAll(".iconbtn[data-mdn]").forEach(el => el.addEventListener("click", () => moveS(el.dataset.mdn, 1)));
   document.querySelectorAll(".iconbtn[data-rk]").forEach(el => el.addEventListener("click", () => {
     const p = el.dataset.rk.split("_"); const wi = +p[0], si = +p[1];
     const baseLen = PLAN()[wi].sessions.length - (state.deleted[wi] || []).length;
@@ -1250,6 +1237,16 @@ function wireWeek(w) {
 
 function openEditor(k) {
   const ed = document.getElementById("e_" + k); if (!ed) return;
+  function moveS(dir) {
+    const wi = Number(k.split("_")[0]), si = Number(k.split("_")[1]);
+    const wv = document.getElementById("weekview");
+    if (!wv) return;
+    const ord = Array.from(wv.querySelectorAll(".session")).map(el => +el.dataset.si).filter(v => !isNaN(v));
+    const i = ord.indexOf(si), j = i + dir;
+    if (i < 0 || j < 0 || j >= ord.length) return;
+    ord.splice(j, 0, ord.splice(i, 1)[0]);
+    state.order[wi] = ord; save(); renderAll();
+  }
   ed.classList.remove("hide");
   if (ed.dataset.loaded) return; ed.dataset.loaded = "1";
   const ws = weeks(); const wi = Number(k.split("_")[0]), si = Number(k.split("_")[1]);
@@ -1267,7 +1264,8 @@ function openEditor(k) {
     "<input id='ekm_" + k + "' placeholder='Km prévus' value='" + esc(edit.km || s.km) + "'></div>" +
     "<p style='font-size:.74rem;color:var(--faint);margin:2px 0 6px'>💡 Change le jour ou le créneau d'une séance sans toucher au reste de la prépa (ex : fractionné du soir au midi). La semaine se réordonne toute seule.</p>" +
     "<textarea id='edet_" + k + "' placeholder='Détails'>" + esc(edit.det || (s.det || []).join("\n")) + "</textarea>" +
-    "<div style='display:flex;gap:8px'><button class='btn green' id='esave_" + k + "'>💾 Enregistrer</button><button class='btn gray' id='ecancel_" + k + "'>Annuler</button></div>";
+    "<div style='display:flex;gap:8px'><button class='btn gray' id='emup_" + k + "'>⬆ Monter</button><button class='btn gray' id='emdn_" + k + "'>⬇ Descendre</button></div>" +
+    "<div style='display:flex;gap:8px;margin-top:8px'><button class='btn green' id='esave_" + k + "'>💾 Enregistrer</button><button class='btn gray' id='ecancel_" + k + "'>Annuler</button></div>";
   document.getElementById("esave_" + k).addEventListener("click", function () {
     const prev = state.edits[k] || {};
     const ws0 = weeks();
@@ -1282,6 +1280,8 @@ function openEditor(k) {
     save(); renderAll();
   });
   document.getElementById("ecancel_" + k).addEventListener("click", () => { ed.classList.add("hide"); ed.dataset.loaded = ""; ed.innerHTML = ""; });
+  document.getElementById("emup_" + k).addEventListener("click", () => moveS(-1));
+  document.getElementById("emdn_" + k).addEventListener("click", () => moveS(1));
 }
 
 function renderStats(ws, recent) {
