@@ -1022,12 +1022,11 @@ function weeks() {
     });
     const ord = state.order[i];
     sessions.sort((a, b) => {
-      const ka = ord ? ord.indexOf(a._si) : -1, kb = ord ? ord.indexOf(b._si) : -1;
-      if (ka >= 0 && kb >= 0) return ka - kb;
-      if (ka >= 0) return -1;
-      if (kb >= 0) return 1;
       const da = DAYORD[a.day] !== undefined ? DAYORD[a.day] : 8, db = DAYORD[b.day] !== undefined ? DAYORD[b.day] : 8;
-      return (da - db) || (a._si - b._si);
+      if (da !== db) return da - db; // 1) l'ordre chronologique des jours fait foi
+      const ka = ord ? ord.indexOf(a._si) : -1, kb = ord ? ord.indexOf(b._si) : -1;
+      if (ka >= 0 && kb >= 0) return ka - kb; // 2) à journée égale : l'ordre manuel (glisser / ⬆⬇)
+      return (a._si - b._si);
     });
     return Object.assign({}, w, { idx: i, sessions: sessions });
   });
